@@ -1,0 +1,39 @@
+# Define the name of our action
+name: Build and run tests
+# Define the trigger for our workflow
+on: pull_request
+# Define the Jobs we want to run as part of this Workflow
+jobs:
+  # Define our build and test Job:
+  build:
+    # We want to run this Job on an Ubuntu VM 
+    runs-on: ubuntu-latest
+    # Define the Steps to run as part of this Job
+    steps:
+    # Checkout the repository code using V1 of the standard checkout Action
+    - uses: actions/checkout@v1
+    # Use the standard Java Action to setup Java 
+    - uses: actions/setup-java@v1
+      with:
+        # We want the latest Java 12
+          java-version: '12.x'
+    # Use the community Action to install Flutter
+    - uses: subosito/flutter-action@v1
+      with:
+        flutter-version: '1.12.x' 
+        channel: 'stable'
+    # Get flutter packages
+    - run: flutter pub get
+    # Build
+    - run: flutter build aot
+    # Check for any formatting issues in the code.
+    - run: flutter format --set-exit-if-changed .
+    # Analyze our Dart code
+    - run: flutter analyze
+    # Run tests and write code coverage results
+    - run: flutter test --coverage
+    # Get code coverage
+    - uses: codecov/codecov-action@v1.0.2
+      with:
+        token: ${{secrets.CODECOV_TOKEN}}
+        file: ./coverage/lcov.info
