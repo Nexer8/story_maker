@@ -1,0 +1,49 @@
+# Author: Mariusz Wiśniewski
+# Define the name of our action
+name: Deploy
+# Define the trigger for our workflow
+on:
+  push:
+    tags:
+    - '*'
+
+# Define the Jobs we want to run as part of this Workflow
+jobs:
+  # Define our build and test Job:
+  build:
+    # We want to run this Job on an Ubuntu VM 
+    runs-on: macos-latest
+    # Define the Steps to run as part of this Job
+    steps:
+    # Checkout the repository code using V1 of the standard checkout Action
+    - uses: actions/checkout@v1
+    # Use the standard Java Action to setup Java 
+    - uses: actions/setup-java@v1
+      with:
+        # We want the latest Java 12
+          java-version: '12.x'
+    # Use the community Action to install Flutter
+    - uses: subosito/flutter-action@v1
+      with:
+        flutter-version: '1.12.x' 
+        channel: 'stable'
+    # Get flutter packages
+    - run: flutter pub get
+    # build Android version
+    - run: flutter build apk --target-platform android-arm,android-arm64,android-x64 --split-per-abi
+      # build iOS version
+    - name: Build Unsigned iOS App
+      run: flutter build ios --release --no-codesign
+    - name: Archive iOS app
+      uses: actions/upload-artifact@v1
+      with:
+        name: tm-release-unsigned.app
+        path: build/ios/iphoneos/Runner.app
+
+      # This action will create a github release and optionally upload an artifact to it.
+      # https://github.com/ncipollo/release-action
+    - name: Deploy APK
+      uses: ncipollo/release-action@v1
+      with:
+        artifacts: "build/app/outputs/apk/Release/*.apk"
+        token: ${{ secrets.CD_TOKEN }}
