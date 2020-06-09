@@ -1,4 +1,3 @@
-# Author: Mariusz Wiśniewski
 # Define the name of our action
 name: Deploy
 # Define the trigger for our workflow
