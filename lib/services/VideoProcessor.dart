@@ -1,6 +1,8 @@
 import 'dart:io';
 
-class VideoProcessor {
+import 'package:storymaker/services/IFileProcessor.dart';
+
+class VideoProcessor implements IFileProcessor {
   Future<List<File>> videos;
 
   File trimFromStart(File video, Duration duration) {
@@ -21,7 +23,7 @@ class VideoProcessor {
     return joinedVideo;
   } // TODO: To implement
 
-  Duration getVideoDuration(File video) {
+  Duration getDuration(File video) {
     Duration duration;
 
     return duration;

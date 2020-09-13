@@ -1,6 +1,8 @@
 import 'dart:io';
 
-class AudioProcessor {
+import 'package:storymaker/services/IFileProcessor.dart';
+
+class AudioProcessor implements IFileProcessor {
   Future<File> audio;
 
   File trimFromStart(File audio, Duration duration) {
@@ -15,7 +17,7 @@ class AudioProcessor {
     return trimmedAudio;
   } // TODO: To implement
 
-  Duration getAudioDuration(File audio) {
+  Duration getDuration(File audio) {
     Duration duration;
 
     return duration;
@@ -27,7 +29,7 @@ class AudioProcessor {
     return bpm;
   } // TODO: To implement
 
-  Duration getOneBarDuration(int Bpm) {
+  Duration getDurationOfOneBar(int bpm) {
     Duration duration;
 
     return duration;

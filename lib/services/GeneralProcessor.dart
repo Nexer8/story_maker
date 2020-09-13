@@ -1,12 +1,12 @@
 import 'dart:io';
 
-import 'package:storymaker/services/audioProcessor.dart';
-import 'package:storymaker/services/videoProcessor.dart';
+import 'package:storymaker/services/AudioProcessor.dart';
+import 'package:storymaker/services/VideoProcessor.dart';
 
 class GeneralStoryProcessor {
   final AudioProcessor _audioProcessor;
   final VideoProcessor _videoProcessor;
-  File processedClip;
+  File processedClip; // TODO: To decide whether optional
 
   GeneralStoryProcessor([this._audioProcessor, this._videoProcessor]);
 
