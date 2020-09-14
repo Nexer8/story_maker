@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:storymaker/services/AudioProcessor.dart';
-import 'package:storymaker/services/IFileProcessor.dart';
+import 'package:storymaker/services/FileProcessor.dart';
 import 'package:storymaker/services/VideoProcessor.dart';
 
 class GeneralStoryProcessor {
@@ -12,11 +12,12 @@ class GeneralStoryProcessor {
   GeneralStoryProcessor([this._audioProcessor, this._videoProcessor]);
 
   Future<void> makeStory() async {
-    if (_audioProcessor.audio != null && _videoProcessor.finalVideo != null) {
+    if (_audioProcessor.audio.existsSync() &&
+        _videoProcessor.finalVideo.existsSync()) {
       processedClip = await joinAudioAndVideo(
           _audioProcessor.audio, _videoProcessor.finalVideo);
     } else if (_audioProcessor.audio == null &&
-        _videoProcessor.finalVideo != null) {
+        _videoProcessor.finalVideo.existsSync()) {
       processedClip = _videoProcessor.finalVideo;
     } else {
       print("ERROR");
@@ -40,12 +41,16 @@ class GeneralStoryProcessor {
   }
 
   Future<File> joinAudioAndVideo(File audio, File video) async {
+    if (!audio.existsSync() || !video.existsSync()) {
+      return null;
+    }
+
     final String rawDocumentPath = _videoProcessor.appDocumentDir.path;
     final String outputPath = rawDocumentPath + "/finalOutput.mp4";
 
     final String commandToExecute =
         "-y -i ${video.path} -i ${audio.path} -c:v copy -c:a aac -map 0:v:0 -map 1:a:0 output.mp4";
-    int rc = await IFileProcessor.flutterFFmpeg.execute(commandToExecute);
+    int rc = await FileProcessor.flutterFFmpeg.execute(commandToExecute);
 
     return rc == 0 ? File(outputPath) : null;
   } // TODO: To test
