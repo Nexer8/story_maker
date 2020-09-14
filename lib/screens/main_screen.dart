@@ -4,11 +4,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:storymaker/services/AudioProcessor.dart';
-import 'package:storymaker/services/GeneralProcessor.dart';
-import 'package:storymaker/services/VideoProcessor.dart';
-import 'package:storymaker/utilities/FilesPicker.dart';
-import 'package:storymaker/utilities/constants/screensIds.dart';
+import 'package:storymaker/services/audio_processor.dart';
+import 'package:storymaker/services/general_processor.dart';
+import 'package:storymaker/services/video_processor.dart';
+import 'package:storymaker/utilities/files_picker.dart';
+import 'package:storymaker/utilities/constants/screen_ids.dart';
 
 class MainScreen extends StatefulWidget {
   static const String id = mainScreenId;

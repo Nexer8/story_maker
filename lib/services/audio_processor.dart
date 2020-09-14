@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:storymaker/services/FileProcessor.dart';
-import 'package:storymaker/utilities/constants/errorCodes.dart';
+import 'package:storymaker/services/file_processor.dart';
+import 'package:storymaker/utilities/constants/error_codes.dart';
 
 class AudioProcessor extends FileProcessor {
   static int outputId = 0;

@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:storymaker/services/FileProcessor.dart';
+import 'package:storymaker/services/file_processor.dart';
 
 void main() {
   group('FileProcessor tests', () {

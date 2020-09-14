@@ -1,6 +1,7 @@
 import 'dart:io';
 
-import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
+import 'package:flutter_ffmpeg/flutter_ffmpeg.dart'
+    show FlutterFFmpeg, FlutterFFprobe;
 
 class FileProcessor {
   static final FlutterFFmpeg flutterFFmpeg = FlutterFFmpeg();

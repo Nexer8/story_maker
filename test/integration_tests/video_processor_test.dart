@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:storymaker/services/VideoProcessor.dart';
+import 'package:storymaker/services/video_processor.dart';
 
 void main() {
   group('VideoProcessor tests', () {

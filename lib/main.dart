@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:storymaker/screens/MainScreen.dart';
+import 'package:storymaker/screens/main_screen.dart';
 
 void main() {
   runApp(StoryMaker());

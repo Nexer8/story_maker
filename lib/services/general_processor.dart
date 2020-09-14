@@ -1,8 +1,8 @@
 import 'dart:io';
 
-import 'package:storymaker/services/AudioProcessor.dart';
-import 'package:storymaker/services/FileProcessor.dart';
-import 'package:storymaker/services/VideoProcessor.dart';
+import 'package:storymaker/services/audio_processor.dart';
+import 'package:storymaker/services/file_processor.dart';
+import 'package:storymaker/services/video_processor.dart';
 
 class GeneralStoryProcessor {
   final AudioProcessor _audioProcessor;
