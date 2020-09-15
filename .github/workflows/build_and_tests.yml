@@ -31,4 +31,4 @@ jobs:
     # Analyze our Dart code
     - run: flutter analyze
     # Run tests and write code coverage results
-    - run: flutter test --coverage
+    - run: flutter test test --coverage
