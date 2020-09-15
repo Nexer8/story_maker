@@ -1,13 +1,19 @@
 import 'dart:io';
 
-import 'package:flutter_ffmpeg/flutter_ffmpeg.dart'
-    show FlutterFFmpeg, FlutterFFprobe;
+import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
+import 'package:mime/mime.dart';
 
 class FileProcessor {
-  static final FlutterFFmpeg flutterFFmpeg = FlutterFFmpeg();
-  static final FlutterFFprobe flutterFFprobe = FlutterFFprobe();
+  FlutterFFmpeg flutterFFmpeg = FlutterFFmpeg();
+  FlutterFFprobe flutterFFprobe = FlutterFFprobe();
   static int outputId = 0;
-  Directory appDocumentDir;
+  final String rawDocumentPath;
+
+  static final FileProcessor instance = FileProcessor(
+      flutterFFmpeg: FlutterFFmpeg(), flutterFFprobe: FlutterFFprobe());
+
+  FileProcessor(
+      {this.flutterFFprobe, this.flutterFFmpeg, this.rawDocumentPath});
 
   static bool isTimePeriodValid(Duration startingPoint, Duration endingPoint) =>
       startingPoint != null &&
@@ -22,12 +28,21 @@ class FileProcessor {
       return null;
     }
 
-    final String rawDocumentPath = appDocumentDir.path;
-    final String outputPath = rawDocumentPath + "/output${outputId++}.mp4";
+    String mimeType = lookupMimeType(file.path);
+    String extension;
+
+    if (mimeType.contains('audio')) {
+      extension = '.mp3';
+    } else if (mimeType.contains('video')) {
+      extension = '.mp4';
+    }
+
+    final String outputPath =
+        rawDocumentPath + "/output${outputId++}" + extension;
     String commandToExecute =
         "-i ${file.path} -ss ${startingPoint.toString()} -t ${endingPoint.toString()} -c copy $outputPath";
 
-    int rc = await FileProcessor.flutterFFmpeg.execute(commandToExecute);
+    int rc = await flutterFFmpeg.execute(commandToExecute);
 
     return rc == 0 ? File(outputPath) : null;
   }
@@ -37,8 +52,7 @@ class FileProcessor {
       return null;
     }
 
-    Map info =
-        await FileProcessor.flutterFFprobe.getMediaInformation(file.path);
+    Map info = await flutterFFprobe.getMediaInformation(file.path);
 
     return Duration(milliseconds: info['duration']);
   }

@@ -45,12 +45,13 @@ class GeneralStoryProcessor {
       return null;
     }
 
-    final String rawDocumentPath = _videoProcessor.appDocumentDir.path;
-    final String outputPath = rawDocumentPath + "/finalOutput.mp4";
+    final String outputPath =
+        _videoProcessor.rawDocumentPath + "/finalOutput.mp4";
 
     final String commandToExecute =
         "-y -i ${video.path} -i ${audio.path} -c:v copy -c:a aac -map 0:v:0 -map 1:a:0 output.mp4";
-    int rc = await FileProcessor.flutterFFmpeg.execute(commandToExecute);
+    int rc =
+        await FileProcessor.instance.flutterFFmpeg.execute(commandToExecute);
 
     return rc == 0 ? File(outputPath) : null;
   } // TODO: To test

@@ -8,22 +8,22 @@ class VideoProcessor extends FileProcessor {
   static int outputId = 0;
   List<File> videos;
   File finalVideo;
-  Directory appDocumentDir;
 
-  VideoProcessor({this.videos, this.appDocumentDir});
+  VideoProcessor({this.videos, String rawDocumentPath})
+      : super(rawDocumentPath: rawDocumentPath);
 
   Future<File> joinVideos(File firstVideo, File secondVideo) async {
     if (!firstVideo.existsSync() || !secondVideo.existsSync()) {
       return null;
     }
 
-    final String rawDocumentPath = appDocumentDir.path;
     final String outputPath = rawDocumentPath + "/output${outputId++}.mp4";
     final String commandToExecute =
         "-y -i ${firstVideo.path} -i ${secondVideo.path} -filter_complex '[0:0][1:0]concat=n=2:v=1:a=0[out]' -r ntsc-film -map '[out]' " +
             outputPath;
 
-    int rc = await FileProcessor.flutterFFmpeg.execute(commandToExecute);
+    int rc =
+        await FileProcessor.instance.flutterFFmpeg.execute(commandToExecute);
 
     return rc == 0 ? File(outputPath) : null;
   }
@@ -34,8 +34,8 @@ class VideoProcessor extends FileProcessor {
     }
 
     int frameRate;
-    Map info =
-        await FileProcessor.flutterFFprobe.getMediaInformation(video.path);
+    Map info = await FileProcessor.instance.flutterFFprobe
+        .getMediaInformation(video.path);
 
     if (info['streams'] != null) {
       final streamsInfoArray = info['streams'];

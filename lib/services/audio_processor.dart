@@ -6,9 +6,9 @@ import 'package:storymaker/utilities/constants/error_codes.dart';
 class AudioProcessor extends FileProcessor {
   static int outputId = 0;
   File audio;
-  Directory appDocumentDir;
 
-  AudioProcessor({this.audio, this.appDocumentDir});
+  AudioProcessor({this.audio, String rawDocumentPath})
+      : super(rawDocumentPath: rawDocumentPath);
 
   int getBpmFromAudio(File audio) {
     if (!audio.existsSync()) {

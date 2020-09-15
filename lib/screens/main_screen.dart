@@ -22,9 +22,9 @@ class _MainScreenState extends State<MainScreen> {
   AudioProcessor audioProcessor;
   VideoProcessor videoProcessor;
 
-  void _incrementCounter() {
-    setState(() {});
-  }
+  // void _incrementCounter() {
+  //   setState(() {});
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +68,8 @@ class _MainScreenState extends State<MainScreen> {
                             final Directory appDocumentDir =
                                 await getApplicationDocumentsDirectory();
                             videoProcessor = VideoProcessor(
-                                videos: videos, appDocumentDir: appDocumentDir);
+                                videos: videos,
+                                rawDocumentPath: appDocumentDir.path);
                           }
                         },
                         child: Ink(
@@ -97,7 +98,8 @@ class _MainScreenState extends State<MainScreen> {
                             final Directory appDocumentDir =
                                 await getApplicationDocumentsDirectory();
                             audioProcessor = AudioProcessor(
-                                audio: audio, appDocumentDir: appDocumentDir);
+                                audio: audio,
+                                rawDocumentPath: appDocumentDir.path);
                           }
                         },
                         child: Ink(
