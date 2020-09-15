@@ -25,19 +25,40 @@ class GeneralStoryProcessor {
   }
 
   Future<void> testFunction() async {
-    // processedClip = await _videoProcessor.joinVideos(
-    //     _videoProcessor.videos.first, _videoProcessor.videos.last);
-    // print('Processed clip info: $processedClip');
-    // print(
-    //     '\nDuration here: ${await _videoProcessor.getDuration(_videoProcessor.videos.first)}');
-    // await _videoProcessor.getFrameRate(_videoProcessor.videos.first);
+    print('\nProcessing videos!');
+    processedClip = await _videoProcessor.joinVideos(
+        _videoProcessor.videos.first, _videoProcessor.videos.last);
+    print('Processed clip info: $processedClip');
+
+    print(
+        '\nDuration here: ${await _videoProcessor.getDuration(processedClip)}');
+
+    print('Frame rate: ${await _videoProcessor.getFrameRate(processedClip)}');
+
     int number = 0;
-    for (var image in await _videoProcessor
-        .getFramesFromVideo(_videoProcessor.videos.first)) {
+    for (var image in await _videoProcessor.getFramesFromVideo(processedClip)) {
       print(image);
       number++;
     }
     print("Number of frames: $number!!!");
+
+    File trimmedVideo = await _videoProcessor.trim(
+        processedClip, Duration(seconds: 0), Duration(seconds: 1));
+    print(
+        '\nDuration after trim: ${await _videoProcessor.getDuration(trimmedVideo)}');
+
+    print('\nProcessing audio!');
+    print(
+        '\nDuration here: ${await _audioProcessor.getDuration(_audioProcessor.audio)}');
+    File trimmedAudio = await _audioProcessor.trim(
+        _audioProcessor.audio, Duration(seconds: 0), Duration(seconds: 1));
+    print(
+        '\nDuration after trim: ${await _audioProcessor.getDuration(trimmedAudio)}');
+
+    File joinedFile = await joinAudioAndVideo(trimmedAudio, trimmedVideo);
+    print('Joined file: ${joinedFile.path}');
+    print(
+        '\nDuration of joinedFile: ${await _videoProcessor.getDuration(joinedFile)}');
   }
 
   Future<File> joinAudioAndVideo(File audio, File video) async {
@@ -49,9 +70,8 @@ class GeneralStoryProcessor {
         _videoProcessor.rawDocumentPath + "/finalOutput.mp4";
 
     final String commandToExecute =
-        "-y -i ${video.path} -i ${audio.path} -c:v copy -c:a aac -map 0:v:0 -map 1:a:0 output.mp4";
-    int rc =
-        await FileProcessor.instance.flutterFFmpeg.execute(commandToExecute);
+        "-y -i ${video.path} -i ${audio.path} -c:v copy -c:a aac -map 0:v:0 -map 1:a:0 $outputPath";
+    int rc = await FileProcessor.flutterFFmpeg.execute(commandToExecute);
 
     return rc == 0 ? File(outputPath) : null;
   } // TODO: To test

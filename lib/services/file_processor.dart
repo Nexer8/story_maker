@@ -4,16 +4,12 @@ import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 import 'package:mime/mime.dart';
 
 class FileProcessor {
-  FlutterFFmpeg flutterFFmpeg = FlutterFFmpeg();
-  FlutterFFprobe flutterFFprobe = FlutterFFprobe();
+  static final FlutterFFmpeg flutterFFmpeg = FlutterFFmpeg();
+  static final FlutterFFprobe flutterFFprobe = FlutterFFprobe();
   static int outputId = 0;
   final String rawDocumentPath;
 
-  static final FileProcessor instance = FileProcessor(
-      flutterFFmpeg: FlutterFFmpeg(), flutterFFprobe: FlutterFFprobe());
-
-  FileProcessor(
-      {this.flutterFFprobe, this.flutterFFmpeg, this.rawDocumentPath});
+  FileProcessor({this.rawDocumentPath});
 
   static bool isTimePeriodValid(Duration startingPoint, Duration endingPoint) =>
       startingPoint != null &&
@@ -38,7 +34,7 @@ class FileProcessor {
     }
 
     final String outputPath =
-        rawDocumentPath + "/output${outputId++}" + extension;
+        rawDocumentPath + "/trimmed${outputId++}" + extension;
     String commandToExecute =
         "-i ${file.path} -ss ${startingPoint.toString()} -t ${endingPoint.toString()} -c copy $outputPath";
 

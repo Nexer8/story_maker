@@ -7,8 +7,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:storymaker/services/audio_processor.dart';
 import 'package:storymaker/services/general_processor.dart';
 import 'package:storymaker/services/video_processor.dart';
-import 'package:storymaker/utilities/files_picker.dart';
 import 'package:storymaker/utilities/constants/screen_ids.dart';
+import 'package:storymaker/utilities/files_picker.dart';
 
 class MainScreen extends StatefulWidget {
   static const String id = mainScreenId;
@@ -67,6 +67,9 @@ class _MainScreenState extends State<MainScreen> {
                           if (videos != null) {
                             final Directory appDocumentDir =
                                 await getApplicationDocumentsDirectory();
+
+                            print('\nVideos: ');
+                            print(videos);
                             videoProcessor = VideoProcessor(
                                 videos: videos,
                                 rawDocumentPath: appDocumentDir.path);
