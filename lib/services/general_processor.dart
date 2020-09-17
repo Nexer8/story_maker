@@ -1,13 +1,36 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
+import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 import 'package:storymaker/services/audio_processor.dart';
 import 'package:storymaker/services/file_processor.dart';
 import 'package:storymaker/services/video_processor.dart';
 
-class GeneralStoryProcessor {
-  final AudioProcessor _audioProcessor;
-  final VideoProcessor _videoProcessor;
-  File processedClip;
+class GeneralStoryProcessor extends ChangeNotifier {
+  AudioProcessor _audioProcessor;
+  VideoProcessor _videoProcessor;
+  File _processedClip;
+
+  AudioProcessor get audioProcessor => _audioProcessor;
+
+  set audioProcessor(AudioProcessor audioProcessor) {
+    _audioProcessor = audioProcessor;
+    notifyListeners();
+  }
+
+  VideoProcessor get videoProcessor => _videoProcessor;
+
+  set videoProcessor(VideoProcessor videoProcessor) {
+    _videoProcessor = videoProcessor;
+    notifyListeners();
+  }
+
+  File get processedClip => _processedClip;
+
+  set processedClip(File processedClip) {
+    _processedClip = processedClip;
+    notifyListeners();
+  }
 
   GeneralStoryProcessor([this._audioProcessor, this._videoProcessor]);
 
@@ -25,19 +48,46 @@ class GeneralStoryProcessor {
   }
 
   Future<void> testFunction() async {
-    // processedClip = await _videoProcessor.joinVideos(
-    //     _videoProcessor.videos.first, _videoProcessor.videos.last);
-    // print('Processed clip info: $processedClip');
-    // print(
-    //     '\nDuration here: ${await _videoProcessor.getDuration(_videoProcessor.videos.first)}');
-    // await _videoProcessor.getFrameRate(_videoProcessor.videos.first);
-    int number = 0;
-    for (var image in await _videoProcessor
-        .getFramesFromVideo(_videoProcessor.videos.first)) {
-      print(image);
-      number++;
-    }
-    print("Number of frames: $number!!!");
+    FlutterFFmpegConfig flutterFFmpegConfig = FlutterFFmpegConfig();
+    flutterFFmpegConfig.disableLogs();
+
+    print('\nPROCESSING VIDEOS!');
+    processedClip = await _videoProcessor.joinVideos(
+        _videoProcessor.videos.first, _videoProcessor.videos.last);
+    print('\nPROCESSED CLIP INFO: $processedClip');
+
+    print(
+        '\nJOINED VIDEOS DURATION: ${await _videoProcessor.getDuration(processedClip)}');
+
+    print('\nFRAME RATE: ${await _videoProcessor.getFrameRate(processedClip)}');
+    // int number = 0;
+    // for (var image in await _videoProcessor.getFramesFromVideo(processedClip)) {
+    //   print(image);
+    //   number++;
+    // }
+    // print("\nNUMBER OF FRAMES: $number!!!");
+
+    File trimmedVideo = await _videoProcessor.trim(
+        processedClip, Duration(seconds: 0), Duration(seconds: 1));
+    print(
+        '\nDURATION AFTER TRIM: ${await _videoProcessor.getDuration(trimmedVideo)}');
+
+    print('\nPROCESSING AUDIO!');
+    print(
+        '\nAUDIO DURATION: ${await _audioProcessor.getDuration(_audioProcessor.audio)}');
+    File trimmedAudio = await _audioProcessor.trim(
+        _audioProcessor.audio, Duration(seconds: 0), Duration(seconds: 1));
+    print(
+        '\nTRIMMED AUDIO DURATION: ${await _audioProcessor.getDuration(trimmedAudio)}');
+
+    File joinedFile = await joinAudioAndVideo(trimmedAudio, trimmedVideo);
+    print('\nJOINED FILE: ${joinedFile.path}');
+    print(
+        '\nJOINED FILE DURATION: ${await _videoProcessor.getDuration(joinedFile)}');
+
+    processedClip = joinedFile;
+
+    FileProcessor.fileCleanup();
   }
 
   Future<File> joinAudioAndVideo(File audio, File video) async {
@@ -45,13 +95,21 @@ class GeneralStoryProcessor {
       return null;
     }
 
-    final String rawDocumentPath = _videoProcessor.appDocumentDir.path;
-    final String outputPath = rawDocumentPath + "/finalOutput.mp4";
+    File joinedVideo;
+    final String outputPath =
+        _videoProcessor.rawDocumentPath + "/finalOutput.mp4";
 
     final String commandToExecute =
-        "-y -i ${video.path} -i ${audio.path} -c:v copy -c:a aac -map 0:v:0 -map 1:a:0 output.mp4";
+        "-y -i ${video.path} -i ${audio.path} -c:v copy -c:a aac -map 0:v:0 -map 1:a:0 $outputPath";
     int rc = await FileProcessor.flutterFFmpeg.execute(commandToExecute);
 
-    return rc == 0 ? File(outputPath) : null;
-  } // TODO: To test
+    if (rc == 0) {
+      joinedVideo = File(outputPath);
+      // FileProcessor.createdFiles.add(joinedVideo);
+
+      return joinedVideo;
+    } else {
+      return null;
+    }
+  }
 }

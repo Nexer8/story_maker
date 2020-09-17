@@ -4,11 +4,17 @@ import 'package:storymaker/services/file_processor.dart';
 import 'package:storymaker/utilities/constants/error_codes.dart';
 
 class AudioProcessor extends FileProcessor {
-  static int outputId = 0;
-  File audio;
-  Directory appDocumentDir;
+  File _audio;
 
-  AudioProcessor({this.audio, this.appDocumentDir});
+  File get audio => _audio;
+
+  set audio(File audio) {
+    _audio = audio;
+    notifyListeners();
+  }
+
+  AudioProcessor({String rawDocumentPath})
+      : super(rawDocumentPath: rawDocumentPath);
 
   int getBpmFromAudio(File audio) {
     if (!audio.existsSync()) {

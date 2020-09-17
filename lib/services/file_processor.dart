@@ -1,13 +1,17 @@
 import 'dart:io';
 
-import 'package:flutter_ffmpeg/flutter_ffmpeg.dart'
-    show FlutterFFmpeg, FlutterFFprobe;
+import 'package:flutter/foundation.dart';
+import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
+import 'package:mime/mime.dart';
 
-class FileProcessor {
+class FileProcessor extends ChangeNotifier {
   static final FlutterFFmpeg flutterFFmpeg = FlutterFFmpeg();
   static final FlutterFFprobe flutterFFprobe = FlutterFFprobe();
   static int outputId = 0;
-  Directory appDocumentDir;
+  static List<File> createdFiles = List<File>();
+  final String rawDocumentPath;
+
+  FileProcessor({this.rawDocumentPath});
 
   static bool isTimePeriodValid(Duration startingPoint, Duration endingPoint) =>
       startingPoint != null &&
@@ -22,14 +26,31 @@ class FileProcessor {
       return null;
     }
 
-    final String rawDocumentPath = appDocumentDir.path;
-    final String outputPath = rawDocumentPath + "/output${outputId++}.mp4";
+    File trimmedFile;
+    String mimeType = lookupMimeType(file.path);
+    String extension;
+
+    if (mimeType.contains('audio')) {
+      extension = '.mp3';
+    } else if (mimeType.contains('video')) {
+      extension = '.mp4';
+    }
+
+    final String outputPath =
+        rawDocumentPath + "/trimmed${outputId++}" + extension;
     String commandToExecute =
         "-i ${file.path} -ss ${startingPoint.toString()} -t ${endingPoint.toString()} -c copy $outputPath";
 
-    int rc = await FileProcessor.flutterFFmpeg.execute(commandToExecute);
+    int rc = await flutterFFmpeg.execute(commandToExecute);
 
-    return rc == 0 ? File(outputPath) : null;
+    if (rc == 0) {
+      trimmedFile = File(outputPath);
+      createdFiles.add(trimmedFile);
+
+      return trimmedFile;
+    } else {
+      return null;
+    }
   }
 
   Future<Duration> getDuration(File file) async {
@@ -37,9 +58,18 @@ class FileProcessor {
       return null;
     }
 
-    Map info =
-        await FileProcessor.flutterFFprobe.getMediaInformation(file.path);
+    Map info = await flutterFFprobe.getMediaInformation(file.path);
 
-    return Duration(milliseconds: info['duration']);
+    if (info != null) {
+      return Duration(milliseconds: info['duration']);
+    } else {
+      return null;
+    }
+  }
+
+  static void fileCleanup() {
+    for (var file in createdFiles) {
+      file.delete();
+    }
   }
 }
