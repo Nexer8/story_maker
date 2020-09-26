@@ -39,7 +39,7 @@ dependencies:
   provider: ^4.3.2+2
   neeko: ^0.0.10
   get_it: ^5.0.1
-
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter

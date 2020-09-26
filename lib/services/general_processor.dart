@@ -117,6 +117,7 @@ class GeneralStoryProcessor extends ChangeNotifier {
 
     final String commandToExecute =
         "-y -i ${video.path} -i ${audio.path} -c:v copy -c:a aac -map 0:v:0 -map 1:a:0 $outputPath";
+
     int rc = await videoProcessor.flutterFFmpeg.execute(commandToExecute);
 
     if (rc == 0) {

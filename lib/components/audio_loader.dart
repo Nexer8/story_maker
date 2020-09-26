@@ -20,7 +20,6 @@ class AudioLoader extends StatelessWidget {
           if (audio != null) {
             generalStoryProcessor.loadAudio(audio);
           }
-          // setState(() {});
         },
         child: Container(
           decoration: BoxDecoration(

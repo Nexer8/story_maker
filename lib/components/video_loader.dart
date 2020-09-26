@@ -20,8 +20,6 @@ class VideoLoader extends StatelessWidget {
           if (videos != null) {
             generalStoryProcessor.loadVideos(videos);
           }
-
-          // setState(() {});
         },
         child: Container(
           decoration: BoxDecoration(

@@ -45,8 +45,6 @@ class FileProcessor extends ChangeNotifier {
 
     int rc = await flutterFFmpeg.execute(commandToExecute);
 
-    print(rc);
-
     if (rc == 0) {
       trimmedFile = File(outputPath);
       createdFiles.add(trimmedFile);
