@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:export_video_frame/export_video_frame.dart';
+import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 import 'package:storymaker/services/file_processor.dart';
 import 'package:storymaker/utilities/constants/error_codes.dart';
 
@@ -22,8 +23,14 @@ class VideoProcessor extends FileProcessor {
     notifyListeners();
   }
 
-  VideoProcessor({String rawDocumentPath})
-      : super(rawDocumentPath: rawDocumentPath);
+  VideoProcessor(
+      {FlutterFFmpeg flutterFFmpeg,
+      FlutterFFprobe flutterFFprobe,
+      String rawDocumentPath})
+      : super(
+            flutterFFmpeg: flutterFFmpeg,
+            flutterFFprobe: flutterFFprobe,
+            rawDocumentPath: rawDocumentPath);
 
   Future<File> joinVideos(File firstVideo, File secondVideo) async {
     if (!firstVideo.existsSync() || !secondVideo.existsSync()) {
@@ -37,7 +44,7 @@ class VideoProcessor extends FileProcessor {
         "-i ${firstVideo.path} -i ${secondVideo.path} -filter_complex '[0:0][1:0]concat=n=2:v=1:a=0[out]' -r ntsc-film -map '[out]' " +
             outputPath;
 
-    int rc = await FileProcessor.flutterFFmpeg.execute(commandToExecute);
+    int rc = await flutterFFmpeg.execute(commandToExecute);
 
     if (rc == 0) {
       joinedVideo = File(outputPath);
@@ -55,8 +62,7 @@ class VideoProcessor extends FileProcessor {
     }
 
     int frameRate;
-    Map info =
-        await FileProcessor.flutterFFprobe.getMediaInformation(video.path);
+    Map info = await flutterFFprobe.getMediaInformation(video.path);
 
     if (info['streams'] != null) {
       final streamsInfoArray = info['streams'];

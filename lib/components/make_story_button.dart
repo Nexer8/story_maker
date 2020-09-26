@@ -8,8 +8,6 @@ import 'package:storymaker/services/video_processor.dart';
 class MakeStoryButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final audioProcessor = Provider.of<AudioProcessor>(context);
-    final videoProcessor = Provider.of<VideoProcessor>(context);
     final generalStoryProcessor = Provider.of<GeneralStoryProcessor>(context);
 
     return Padding(
@@ -20,17 +18,12 @@ class MakeStoryButton extends StatelessWidget {
           onPressed: () async {
             print("Create story button has been pressed");
 
-            if (videoProcessor != null) {
-              generalStoryProcessor.videoProcessor = videoProcessor;
-
-              if (audioProcessor != null) {
-                generalStoryProcessor.audioProcessor = audioProcessor;
-              }
-              print('General story processor has been created!');
+            if (generalStoryProcessor.isOperational()) {
+              print('General story processor is operational!');
 
               await generalStoryProcessor.testFunction();
             } else {
-              print('No processor created');
+              print('Not operational');
             }
           },
           child: Container(
