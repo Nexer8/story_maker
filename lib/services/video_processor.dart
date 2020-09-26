@@ -1,31 +1,59 @@
 import 'dart:io';
 
 import 'package:export_video_frame/export_video_frame.dart';
+import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 import 'package:storymaker/services/file_processor.dart';
 import 'package:storymaker/utilities/constants/error_codes.dart';
 
 class VideoProcessor extends FileProcessor {
-  static int outputId = 0;
-  List<File> videos;
-  File finalVideo;
+  List<File> _videos;
+  File _finalVideo;
 
-  VideoProcessor({this.videos, String rawDocumentPath})
-      : super(rawDocumentPath: rawDocumentPath);
+  List<File> get videos => _videos;
+
+  set videos(List<File> videos) {
+    _videos = videos;
+    notifyListeners();
+  }
+
+  File get finalVideo => _finalVideo;
+
+  set finalVideo(File finalVideo) {
+    _finalVideo = finalVideo;
+    notifyListeners();
+  }
+
+  VideoProcessor(
+      {FlutterFFmpeg flutterFFmpeg,
+      FlutterFFprobe flutterFFprobe,
+      String rawDocumentPath})
+      : super(
+            flutterFFmpeg: flutterFFmpeg,
+            flutterFFprobe: flutterFFprobe,
+            rawDocumentPath: rawDocumentPath);
 
   Future<File> joinVideos(File firstVideo, File secondVideo) async {
     if (!firstVideo.existsSync() || !secondVideo.existsSync()) {
       return null;
     }
 
-    final String outputPath = rawDocumentPath + "/output${outputId++}.mp4";
+    File joinedVideo;
+    final String outputPath =
+        rawDocumentPath + "/output${FileProcessor.outputId++}.mp4";
     final String commandToExecute =
         "-i ${firstVideo.path} -i ${secondVideo.path} -filter_complex '[0:0][1:0]concat=n=2:v=1:a=0[out]' -r ntsc-film -map '[out]' " +
             outputPath;
 
-    int rc =
-        await FileProcessor.flutterFFmpeg.execute(commandToExecute);
+    int rc = await flutterFFmpeg.execute(commandToExecute);
 
-    return rc == 0 ? File(outputPath) : null;
+    if (rc == 0) {
+      joinedVideo = File(outputPath);
+      FileProcessor.createdFiles.add(joinedVideo);
+
+      return joinedVideo;
+    } else {
+      return null;
+    }
   }
 
   Future<int> getFrameRate(File video) async {
@@ -34,8 +62,7 @@ class VideoProcessor extends FileProcessor {
     }
 
     int frameRate;
-    Map info = await FileProcessor.flutterFFprobe
-        .getMediaInformation(video.path);
+    Map info = await flutterFFprobe.getMediaInformation(video.path);
 
     if (info['streams'] != null) {
       final streamsInfoArray = info['streams'];
@@ -57,11 +84,11 @@ class VideoProcessor extends FileProcessor {
       return null;
     }
 
-    return await ExportVideoFrame.exportImage(
-        video.path,
-        (await getDuration(video)).inSeconds *
-            await getFrameRate(video),
-        1);
+    List<File> frames = await ExportVideoFrame.exportImage(video.path,
+        (await getDuration(video)).inSeconds * await getFrameRate(video), 1);
+    FileProcessor.createdFiles.addAll(frames);
+
+    return frames;
   }
 
   double calculateDifferenceBetweenFrames(File firstImage, File secondImage) {

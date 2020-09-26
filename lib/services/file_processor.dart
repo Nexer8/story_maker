@@ -1,15 +1,19 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 import 'package:mime/mime.dart';
 
-class FileProcessor {
-  static final FlutterFFmpeg flutterFFmpeg = FlutterFFmpeg();
-  static final FlutterFFprobe flutterFFprobe = FlutterFFprobe();
+class FileProcessor extends ChangeNotifier {
   static int outputId = 0;
+  static List<File> createdFiles = List<File>();
+
+  final FlutterFFmpeg flutterFFmpeg;
+  final FlutterFFprobe flutterFFprobe;
   final String rawDocumentPath;
 
-  FileProcessor({this.rawDocumentPath});
+  FileProcessor(
+      {this.rawDocumentPath, this.flutterFFmpeg, this.flutterFFprobe});
 
   static bool isTimePeriodValid(Duration startingPoint, Duration endingPoint) =>
       startingPoint != null &&
@@ -24,6 +28,7 @@ class FileProcessor {
       return null;
     }
 
+    File trimmedFile;
     String mimeType = lookupMimeType(file.path);
     String extension;
 
@@ -36,11 +41,18 @@ class FileProcessor {
     final String outputPath =
         rawDocumentPath + "/trimmed${outputId++}" + extension;
     String commandToExecute =
-        "-i ${file.path} -ss ${startingPoint.toString()} -t ${endingPoint.toString()} -c copy $outputPath";
+        "-y -i ${file.path} -ss ${startingPoint.toString()} -t ${endingPoint.toString()} -c copy $outputPath";
 
     int rc = await flutterFFmpeg.execute(commandToExecute);
 
-    return rc == 0 ? File(outputPath) : null;
+    if (rc == 0) {
+      trimmedFile = File(outputPath);
+      createdFiles.add(trimmedFile);
+
+      return trimmedFile;
+    } else {
+      return null;
+    }
   }
 
   Future<Duration> getDuration(File file) async {
@@ -50,6 +62,17 @@ class FileProcessor {
 
     Map info = await flutterFFprobe.getMediaInformation(file.path);
 
-    return Duration(milliseconds: info['duration']);
+    if (info != null) {
+      return Duration(milliseconds: info['duration']);
+    } else {
+      return null;
+    }
+  }
+
+  static void fileCleanup() {
+    for (var file in createdFiles) {
+      file.deleteSync();
+    }
+    createdFiles.clear();
   }
 }

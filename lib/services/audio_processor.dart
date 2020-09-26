@@ -1,14 +1,27 @@
 import 'dart:io';
 
+import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 import 'package:storymaker/services/file_processor.dart';
 import 'package:storymaker/utilities/constants/error_codes.dart';
 
 class AudioProcessor extends FileProcessor {
-  static int outputId = 0;
-  File audio;
+  File _audio;
 
-  AudioProcessor({this.audio, String rawDocumentPath})
-      : super(rawDocumentPath: rawDocumentPath);
+  File get audio => _audio;
+
+  set audio(File audio) {
+    _audio = audio;
+    notifyListeners();
+  }
+
+  AudioProcessor(
+      {FlutterFFmpeg flutterFFmpeg,
+      FlutterFFprobe flutterFFprobe,
+      String rawDocumentPath})
+      : super(
+            flutterFFmpeg: flutterFFmpeg,
+            flutterFFprobe: flutterFFprobe,
+            rawDocumentPath: rawDocumentPath);
 
   int getBpmFromAudio(File audio) {
     if (!audio.existsSync()) {

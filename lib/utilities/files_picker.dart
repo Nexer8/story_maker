@@ -19,6 +19,10 @@ class FilesPicker {
     FilePickerResult filePickerResult =
         await FilePicker.platform.pickFiles(type: FileType.audio);
 
-    return File(filePickerResult.files.first.path);
+    if (filePickerResult != null) {
+      return File(filePickerResult.files.first.path);
+    } else {
+      return null;
+    }
   }
 }

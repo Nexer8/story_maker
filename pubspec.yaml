@@ -35,7 +35,11 @@ dependencies:
   export_video_frame: ^0.0.5+4
   mockito: ^4.1.1
   mime: ^0.9.7
-
+  image: ^2.1.12
+  provider: ^4.3.2+2
+  neeko: ^0.0.10
+  get_it: ^5.0.1
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter
