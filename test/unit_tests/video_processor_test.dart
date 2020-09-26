@@ -1,53 +1,55 @@
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/mockito.dart';
 import 'package:storymaker/services/video_processor.dart';
+
+class FlutterFFmpegMock extends Mock implements FlutterFFmpeg {}
+
+class FlutterFFprobeMock extends Mock implements FlutterFFprobe {}
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
   group('VideoProcessor tests', () {
-    final VideoProcessor videoProcessor =
-        VideoProcessor(rawDocumentPath: 'test_resources');
+    final FlutterFFmpegMock flutterFFmpegMock = FlutterFFmpegMock();
+    final FlutterFFprobeMock flutterFFprobeMock = FlutterFFprobeMock();
+
+    final VideoProcessor videoProcessor = VideoProcessor(
+        flutterFFmpeg: flutterFFmpegMock,
+        flutterFFprobe: flutterFFprobeMock,
+        rawDocumentPath: 'test_resources');
     final File firstVideo = File('test_resources/sample_video.mp4');
     final File secondVideo = File('test_resources/sample_video.mp4');
     const int firstVideoFrameRate = 30;
 
     group('VideoProcessor joinVideos', () {
       test('ut_VideoProcessor_joinVideos_default', () async {
-        File joinedVideo =
-            await videoProcessor.joinVideos(firstVideo, secondVideo);
+        when(flutterFFmpegMock.execute(any))
+            .thenAnswer((_) async => Future<int>.value(0));
 
-        expect(joinedVideo.existsSync(), true);
+        final regex = RegExp(r'^test_resources\/joined.\.mp4$');
 
         expect(
-            await videoProcessor.getDuration(joinedVideo),
-            await videoProcessor.getDuration(firstVideo) +
-                await videoProcessor.getDuration(secondVideo));
+            regex.hasMatch(
+                (await videoProcessor.joinVideos(firstVideo, secondVideo))
+                    .path),
+            true);
       });
     });
 
     group('VideoProcessor getFrameRate', () {
       test('ut_VideoProcessor_getFrameRate_default', () async {
+        var streams = List<Map<String, String>>();
+        streams.add({'averageFrameRate': firstVideoFrameRate.toString()});
+
+        when(flutterFFprobeMock.getMediaInformation(firstVideo.path))
+            .thenAnswer((_) async => Future<Map>.value({'streams': streams}));
+
         expect(
             await videoProcessor.getFrameRate(firstVideo), firstVideoFrameRate);
-      });
-    });
-
-    group('VideoProcessor getFramesFromVideo', () {
-      test('ut_VideoProcessor_getFramesFromVideo_default', () async {
-        List<File> videoFrames =
-            await videoProcessor.getFramesFromVideo(firstVideo);
-
-        for (var frame in videoFrames) {
-          expect(frame.existsSync(), true);
-        }
-
-        expect(
-            videoFrames.length,
-            await videoProcessor.getDuration(firstVideo) *
-                await videoProcessor.getFrameRate(firstVideo));
       });
     });
   });
