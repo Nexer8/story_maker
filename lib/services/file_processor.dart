@@ -5,13 +5,15 @@ import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 import 'package:mime/mime.dart';
 
 class FileProcessor extends ChangeNotifier {
-  static final FlutterFFmpeg flutterFFmpeg = FlutterFFmpeg();
-  static final FlutterFFprobe flutterFFprobe = FlutterFFprobe();
   static int outputId = 0;
   static List<File> createdFiles = List<File>();
+
+  final FlutterFFmpeg flutterFFmpeg;
+  final FlutterFFprobe flutterFFprobe;
   final String rawDocumentPath;
 
-  FileProcessor({this.rawDocumentPath});
+  FileProcessor(
+      {this.rawDocumentPath, this.flutterFFmpeg, this.flutterFFprobe});
 
   static bool isTimePeriodValid(Duration startingPoint, Duration endingPoint) =>
       startingPoint != null &&
@@ -39,7 +41,7 @@ class FileProcessor extends ChangeNotifier {
     final String outputPath =
         rawDocumentPath + "/trimmed${outputId++}" + extension;
     String commandToExecute =
-        "-i ${file.path} -ss ${startingPoint.toString()} -t ${endingPoint.toString()} -c copy $outputPath";
+        "-y -i ${file.path} -ss ${startingPoint.toString()} -t ${endingPoint.toString()} -c copy $outputPath";
 
     int rc = await flutterFFmpeg.execute(commandToExecute);
 
@@ -69,7 +71,8 @@ class FileProcessor extends ChangeNotifier {
 
   static void fileCleanup() {
     for (var file in createdFiles) {
-      file.delete();
+      file.deleteSync();
     }
+    createdFiles.clear();
   }
 }

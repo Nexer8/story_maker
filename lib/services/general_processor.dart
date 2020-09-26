@@ -32,7 +32,23 @@ class GeneralStoryProcessor extends ChangeNotifier {
     notifyListeners();
   }
 
-  GeneralStoryProcessor([this._audioProcessor, this._videoProcessor]);
+  GeneralStoryProcessor(this._audioProcessor, this._videoProcessor);
+
+  void loadVideos(List<File> videos) {
+    _videoProcessor.videos = videos;
+  }
+
+  void loadAudio(File audio) {
+    _audioProcessor.audio = audio;
+  }
+
+  bool isOperational() {
+    if (_videoProcessor.videos != null) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 
   Future<void> makeStory() async {
     if (_audioProcessor.audio.existsSync() &&
@@ -101,7 +117,8 @@ class GeneralStoryProcessor extends ChangeNotifier {
 
     final String commandToExecute =
         "-y -i ${video.path} -i ${audio.path} -c:v copy -c:a aac -map 0:v:0 -map 1:a:0 $outputPath";
-    int rc = await FileProcessor.flutterFFmpeg.execute(commandToExecute);
+
+    int rc = await videoProcessor.flutterFFmpeg.execute(commandToExecute);
 
     if (rc == 0) {
       joinedVideo = File(outputPath);

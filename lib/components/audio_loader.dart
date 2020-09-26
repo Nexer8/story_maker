@@ -3,13 +3,13 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:storymaker/services/audio_processor.dart';
+import 'package:storymaker/services/general_processor.dart';
 import 'package:storymaker/utilities/files_picker.dart';
 
 class AudioLoader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final audioProcessor = Provider.of<AudioProcessor>(context);
+    final generalStoryProcessor = Provider.of<GeneralStoryProcessor>(context);
 
     return Expanded(
       child: InkWell(
@@ -18,9 +18,8 @@ class AudioLoader extends StatelessWidget {
           File audio = await FilesPicker.pickAudioFromDevice();
 
           if (audio != null) {
-            audioProcessor.audio = audio;
+            generalStoryProcessor.loadAudio(audio);
           }
-          // setState(() {});
         },
         child: Container(
           decoration: BoxDecoration(
