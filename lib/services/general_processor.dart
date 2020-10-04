@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
+import 'package:storymaker/services/ClipSample.dart';
 import 'package:storymaker/services/audio_processor.dart';
 import 'package:storymaker/services/file_processor.dart';
 import 'package:storymaker/services/video_processor.dart';
@@ -64,8 +64,17 @@ class GeneralStoryProcessor extends ChangeNotifier {
   }
 
   Future<void> testFunction() async {
-    FlutterFFmpegConfig flutterFFmpegConfig = FlutterFFmpegConfig();
-    flutterFFmpegConfig.disableLogs();
+    List<ClipSample> samples = await _videoProcessor.getBestMomentsByAudio(
+        videoProcessor.videos.first, 10);
+
+    if (samples.isNotEmpty) {
+      for (var sample in samples) {
+        print('Path: ${sample.file.path}');
+        print('Starting point: ${sample.startingPoint}');
+        print('Ending point: ${sample.endingPoint}');
+        print('Mean volume: ${sample.meanVolume}');
+      }
+    }
 
     print('\nPROCESSING VIDEOS!');
     processedClip = await _videoProcessor.joinVideos(
@@ -76,12 +85,12 @@ class GeneralStoryProcessor extends ChangeNotifier {
         '\nJOINED VIDEOS DURATION: ${await _videoProcessor.getDuration(processedClip)}');
 
     print('\nFRAME RATE: ${await _videoProcessor.getFrameRate(processedClip)}');
-    // int number = 0;
-    // for (var image in await _videoProcessor.getFramesFromVideo(processedClip)) {
-    //   print(image);
-    //   number++;
-    // }
-    // print("\nNUMBER OF FRAMES: $number!!!");
+    int number = 0;
+    for (var image in await _videoProcessor.getFramesFromVideo(processedClip)) {
+      print(image);
+      number++;
+    }
+    print("\nNUMBER OF FRAMES: $number!!!");
 
     File trimmedVideo = await _videoProcessor.trim(
         processedClip, Duration(seconds: 0), Duration(seconds: 1));
