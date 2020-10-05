@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-import 'package:storymaker/services/ClipSample.dart';
+import 'package:storymaker/services/clip_sample.dart';
 import 'package:storymaker/services/audio_processor.dart';
 import 'package:storymaker/services/file_processor.dart';
 import 'package:storymaker/services/video_processor.dart';
@@ -35,11 +35,11 @@ class GeneralStoryProcessor extends ChangeNotifier {
   GeneralStoryProcessor(this._audioProcessor, this._videoProcessor);
 
   void loadVideos(List<File> videos) {
-    _videoProcessor.videos = videos;
+    videoProcessor.videos = videos;
   }
 
   void loadAudio(File audio) {
-    _audioProcessor.audio = audio;
+    audioProcessor.audio = audio;
   }
 
   bool isOperational() {
@@ -50,17 +50,28 @@ class GeneralStoryProcessor extends ChangeNotifier {
     }
   }
 
-  Future<void> makeStory() async {
-    if (_audioProcessor.audio.existsSync() &&
+  Future<void> makeStory(Duration duration) async {
+    await _videoProcessor.createFinalVideo(duration);
+
+    if (_audioProcessor.audio != null &&
+        _audioProcessor.audio.existsSync() &&
+        _videoProcessor.finalVideo != null &&
         _videoProcessor.finalVideo.existsSync()) {
       processedClip = await joinAudioAndVideo(
           _audioProcessor.audio, _videoProcessor.finalVideo);
     } else if (_audioProcessor.audio == null &&
+        _videoProcessor.finalVideo != null &&
         _videoProcessor.finalVideo.existsSync()) {
       processedClip = _videoProcessor.finalVideo;
+
+      print(processedClip.path);
+      print(
+          'Processed clip length: ${await _videoProcessor.getDuration(processedClip)}');
     } else {
       print("ERROR");
     }
+
+    // FileProcessor.fileCleanup();
   }
 
   Future<void> testFunction() async {
