@@ -193,6 +193,7 @@ class FileProcessor extends ChangeNotifier {
           endingPoint: currentPoint + step <= duration
               ? currentPoint + step
               : duration));
+
       currentPoint += step;
     }
 
