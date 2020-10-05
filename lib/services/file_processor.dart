@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 import 'package:mime/mime.dart';
 import 'package:storymaker/utilities/constants/general_processing_values.dart';
-import 'package:storymaker/services/ClipSample.dart';
+import 'package:storymaker/services/clip_sample.dart';
 
 class FileProcessor extends ChangeNotifier {
   static int outputId = 0;
@@ -48,12 +48,13 @@ class FileProcessor extends ChangeNotifier {
     final String outputPath =
         rawDocumentPath + "/trimmed${outputId++}" + extension;
     String commandToExecute =
-        "-y -i ${file.path} -ss ${startingPoint.toString()} -t ${endingPoint.toString()} -c copy $outputPath";
+        "-y -i ${file.path} -ss ${startingPoint.toString()} -t ${(endingPoint - startingPoint).toString()} -c copy $outputPath";
 
     int rc = await flutterFFmpeg.execute(commandToExecute);
 
     if (rc == 0) {
       trimmedFile = File(outputPath);
+
       createdFiles.add(trimmedFile);
 
       return trimmedFile;
@@ -130,7 +131,7 @@ class FileProcessor extends ChangeNotifier {
     FlutterFFmpegConfig _flutterFFmpegConfig = FlutterFFmpegConfig();
     _flutterFFmpegConfig.enableLogCallback(this.logCallback);
 
-    const int samplingRate = 1;
+    const int samplingRate = 10;
     final String commandToExecute =
         "-y -t $samplingRate -i ${file.path} -af 'volumedetect' -vn -sn -dn -f null /dev/null";
 
@@ -153,7 +154,7 @@ class FileProcessor extends ChangeNotifier {
     FlutterFFmpegConfig _flutterFFmpegConfig = FlutterFFmpegConfig();
     _flutterFFmpegConfig.enableLogCallback(this.logCallback);
 
-    const int samplingRate = 1;
+    const int samplingRate = 10;
     final String commandToExecute =
         "-y -t $samplingRate -i ${file.path} -af 'volumedetect' -vn -sn -dn -f null /dev/null";
 
@@ -177,16 +178,22 @@ class FileProcessor extends ChangeNotifier {
     var chunks = List<ClipSample>();
 
     Duration duration = await getDuration(video);
-    Duration currentPoint = Duration(milliseconds: 0);
+    var currentPoint = Duration();
 
-    Duration step = Duration(
-        milliseconds: (duration.inMilliseconds / samplingRate).round());
+    Duration step = duration ~/ samplingRate;
 
     while (currentPoint < duration) {
       chunks.add(ClipSample(
-          file: await trim(video, currentPoint, currentPoint + step),
-          startingPoint: currentPoint,
-          endingPoint: currentPoint + step));
+          file: await trim(
+              video,
+              currentPoint + step <= duration ? currentPoint : duration - step,
+              currentPoint + step <= duration ? currentPoint + step : duration),
+          startingPoint:
+              currentPoint + step <= duration ? currentPoint : duration - step,
+          endingPoint: currentPoint + step <= duration
+              ? currentPoint + step
+              : duration));
+
       currentPoint += step;
     }
 

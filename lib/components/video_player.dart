@@ -2,14 +2,11 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:storymaker/services/general_processor.dart';
 import 'package:video_player/video_player.dart';
 
 class MyVideoPlayer extends StatefulWidget {
-  final GeneralStoryProcessor generalStoryProcessor;
-
-  MyVideoPlayer(this.generalStoryProcessor);
-
   @override
   VideoState createState() => VideoState();
 }
@@ -41,11 +38,13 @@ class VideoState extends State<MyVideoPlayer> {
 
   @override
   Widget build(BuildContext context) {
+    final generalStoryProcessor = Provider.of<GeneralStoryProcessor>(context);
+
     return Expanded(
       child: InkWell(
         onTap: () {
-          if (widget.generalStoryProcessor != null) {
-            loadVideo(widget.generalStoryProcessor.processedClip);
+          if (generalStoryProcessor != null) {
+            loadVideo(generalStoryProcessor.processedClip);
             playerController.play();
           } else {
             print('No instance of generalStoryProcessor found!!!');
