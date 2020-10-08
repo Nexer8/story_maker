@@ -2,10 +2,11 @@ import 'dart:io';
 
 import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 import 'package:storymaker/services/file_processor.dart';
-import 'package:storymaker/utilities/constants/error_codes.dart';
+import 'package:storymaker/utilities/constants/general_processing_values.dart';
 
 class AudioProcessor extends FileProcessor {
   File _audio;
+  File _finalAudio;
 
   File get audio => _audio;
 
@@ -14,32 +15,34 @@ class AudioProcessor extends FileProcessor {
     notifyListeners();
   }
 
+  File get finalAudio => _finalAudio;
+
+  set finalAudio(File finalAudio) {
+    _finalAudio = finalAudio;
+    notifyListeners();
+  }
+
   AudioProcessor(
       {FlutterFFmpeg flutterFFmpeg,
       FlutterFFprobe flutterFFprobe,
+      FlutterFFmpegConfig flutterFFmpegConfig,
       String rawDocumentPath})
       : super(
             flutterFFmpeg: flutterFFmpeg,
             flutterFFprobe: flutterFFprobe,
+            flutterFFmpegConfig: flutterFFmpegConfig,
             rawDocumentPath: rawDocumentPath);
 
-  int getBpmFromAudio(File audio) {
-    if (!audio.existsSync()) {
-      return invalidFile;
+  Future<void> createFinalAudio(Duration finalDuration) async {
+    if (finalDuration > maximalDuration) {
+      print('Final Duration > Maximal Duration');
+      return;
     }
 
-    int bpm;
+    Duration duration = await getDuration(audio);
+    File bestAudio = await getBestMomentByAudio(audio,
+        (duration.inMicroseconds / finalDuration.inMilliseconds).round());
 
-    return bpm;
-  } // TODO: To implement
-
-  Duration getDurationOfOneBar(int bpm) {
-    if (bpm <= 0) {
-      return null;
-    }
-
-    Duration duration;
-
-    return duration;
-  } // TODO: To implement
+    finalAudio = bestAudio;
+  }
 }

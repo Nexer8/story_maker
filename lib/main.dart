@@ -35,10 +35,14 @@ class StoryMaker extends StatelessWidget {
               AudioProcessor(
                   flutterFFmpeg: DIContainer.getIt.get<FlutterFFmpeg>(),
                   flutterFFprobe: DIContainer.getIt.get<FlutterFFprobe>(),
+                  flutterFFmpegConfig:
+                      DIContainer.getIt.get<FlutterFFmpegConfig>(),
                   rawDocumentPath: rawDocumentPath),
               VideoProcessor(
                   flutterFFmpeg: DIContainer.getIt.get<FlutterFFmpeg>(),
                   flutterFFprobe: DIContainer.getIt.get<FlutterFFprobe>(),
+                  flutterFFmpegConfig:
+                      DIContainer.getIt.get<FlutterFFmpegConfig>(),
                   rawDocumentPath: rawDocumentPath)),
         ),
       ],

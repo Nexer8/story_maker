@@ -23,7 +23,6 @@ void main() {
         rawDocumentPath: 'test_resources');
     final File firstVideo = File('test_resources/sample_video.mp4');
     final File secondVideo = File('test_resources/sample_video.mp4');
-    const int firstVideoFrameRate = 30;
 
     group('VideoProcessor joinVideos', () {
       test('ut_VideoProcessor_joinVideos_default', () async {
@@ -37,19 +36,6 @@ void main() {
                 (await videoProcessor.joinVideos(firstVideo, secondVideo))
                     .path),
             true);
-      });
-    });
-
-    group('VideoProcessor getFrameRate', () {
-      test('ut_VideoProcessor_getFrameRate_default', () async {
-        var streams = List<Map<String, String>>();
-        streams.add({'averageFrameRate': firstVideoFrameRate.toString()});
-
-        when(flutterFFprobeMock.getMediaInformation(firstVideo.path))
-            .thenAnswer((_) async => Future<Map>.value({'streams': streams}));
-
-        expect(
-            await videoProcessor.getFrameRate(firstVideo), firstVideoFrameRate);
       });
     });
   });

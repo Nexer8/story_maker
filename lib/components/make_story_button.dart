@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:storymaker/services/general_processor.dart';
+import 'package:storymaker/utilities/constants/general_processing_values.dart';
 
 class MakeStoryButton extends StatelessWidget {
   @override
@@ -19,7 +20,8 @@ class MakeStoryButton extends StatelessWidget {
             if (generalStoryProcessor.isOperational()) {
               print('General story processor is operational!');
 
-              await generalStoryProcessor.makeStory(Duration(seconds: 5));
+              await generalStoryProcessor.makeStory(Duration(seconds: 5),
+                  ProcessingType.ByScene); //TODO: remove hardcoded values
             } else {
               print('Not operational');
             }

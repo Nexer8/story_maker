@@ -7,5 +7,6 @@ class DIContainer {
   static void registerServices() {
     getIt.registerLazySingleton(() => FlutterFFmpeg());
     getIt.registerLazySingleton(() => FlutterFFprobe());
+    getIt.registerLazySingleton(() => FlutterFFmpegConfig());
   }
 }
