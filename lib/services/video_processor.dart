@@ -1,11 +1,8 @@
 import 'dart:io';
 
-import 'package:export_video_frame/export_video_frame.dart';
 import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
-import 'package:storymaker/services/clip_sample.dart';
 import 'package:storymaker/services/file_processor.dart';
 import 'package:storymaker/services/video_processing_data.dart';
-import 'package:storymaker/utilities/constants/error_codes.dart';
 import 'package:storymaker/utilities/constants/general_processing_values.dart';
 
 class VideoProcessor extends FileProcessor {
@@ -32,10 +29,12 @@ class VideoProcessor extends FileProcessor {
   VideoProcessor(
       {FlutterFFmpeg flutterFFmpeg,
       FlutterFFprobe flutterFFprobe,
+      FlutterFFmpegConfig flutterFFmpegConfig,
       String rawDocumentPath})
       : super(
             flutterFFmpeg: flutterFFmpeg,
             flutterFFprobe: flutterFFprobe,
+            flutterFFmpegConfig: flutterFFmpegConfig,
             rawDocumentPath: rawDocumentPath);
 
   Future<File> joinVideos(File firstVideo, File secondVideo) async {
@@ -55,7 +54,7 @@ class VideoProcessor extends FileProcessor {
     if (rc == 0) {
       joinedVideo = File(outputPath);
 
-      FileProcessor.createdFiles.add(joinedVideo);
+      FileProcessor.filesToRemove.add(joinedVideo);
 
       return joinedVideo;
     } else {
@@ -63,48 +62,8 @@ class VideoProcessor extends FileProcessor {
     }
   }
 
-  Future<int> getFrameRate(File video) async {
-    if (!video.existsSync()) {
-      return invalidFile;
-    }
-
-    int frameRate;
-    Map info = await flutterFFprobe.getMediaInformation(video.path);
-
-    if (info['streams'] != null) {
-      final streamsInfoArray = info['streams'];
-
-      if (streamsInfoArray.length > 0) {
-        for (var streamsInfo in streamsInfoArray) {
-          if (streamsInfo['averageFrameRate'] != null) {
-            frameRate = double.parse(streamsInfo['averageFrameRate']).round();
-          }
-        }
-      }
-    }
-
-    return frameRate;
-  }
-
-  Future<List<File>> getFramesFromVideo(File video) async {
-    if (!video.existsSync()) {
-      return null;
-    }
-
-    List<File> frames = await ExportVideoFrame.exportImage(video.path,
-        (await getDuration(video)).inSeconds * await getFrameRate(video), 1);
-    FileProcessor.createdFiles.addAll(frames);
-
-    return frames;
-  }
-
-  double calculateDifferenceBetweenFrames(File firstImage, File secondImage) {
-    double diff;
-
-    return diff;
-  } // TODO: To implement
-
-  Future<List<VideoProcessingData>> loadVideosProcessingData() async {
+  Future<List<VideoProcessingData>>
+      loadVideosProcessingDataAndSetLongestAndTotalVideoDuration() async {
     var videosToProcess = List<VideoProcessingData>();
 
     for (var video in _videos) {
@@ -126,7 +85,7 @@ class VideoProcessor extends FileProcessor {
     return videosToProcess;
   }
 
-  Duration computeOneFractionValue(
+  Duration computeOneFractionValueAndSetNormalizedTimeFraction(
       List<VideoProcessingData> videosToProcess, Duration finalDuration) {
     for (var videoData in videosToProcess) {
       videoData.normalizedTimeFraction =
@@ -143,34 +102,16 @@ class VideoProcessor extends FileProcessor {
     return oneFraction;
   }
 
-  Future<List<List<ClipSample>>> getBestMomentsForVideos(
-      List<VideoProcessingData> videosToProcess, Duration oneFraction) async {
-    var bestMomentsForVideos = List<List<ClipSample>>();
-
-    for (var videoData in videosToProcess) {
-      videoData.expectedDuration =
-          oneFraction * videoData.normalizedTimeFraction;
-      videoData.samplingRate = (videoData.originalDuration.inMicroseconds /
-              videoData.expectedDuration.inMicroseconds)
-          .round();
-
-      bestMomentsForVideos.add(
-          await getBestMomentsByAudio(videoData.video, videoData.samplingRate));
-    }
-
-    return bestMomentsForVideos;
-  }
-
-  Future<void> createFinalVideo(Duration finalDuration) async {
+  Future<void> createFinalVideo(
+      Duration finalDuration, ProcessingType processingType) async {
+    // TODO: add an enum to choose the method
     if (finalDuration > maximalDuration) {
       print('Final Duration > Maximal Duration');
       return;
     }
 
-    finalVideo = null;
-
     List<VideoProcessingData> videosProcessingData =
-        await loadVideosProcessingData();
+        await loadVideosProcessingDataAndSetLongestAndTotalVideoDuration();
 
     if (videosProcessingData == null) {
       print('VideoProcessingData is null');
@@ -182,17 +123,48 @@ class VideoProcessor extends FileProcessor {
       return;
     }
 
-    Duration oneFraction =
-        computeOneFractionValue(videosProcessingData, finalDuration);
+    Duration oneFraction = computeOneFractionValueAndSetNormalizedTimeFraction(
+        videosProcessingData, finalDuration);
 
-    List<List<ClipSample>> bestMomentsForVideos =
-        await getBestMomentsForVideos(videosProcessingData, oneFraction);
+    var bestMomentsForVideos = List<File>();
+    File videoToConcatenate;
 
-    File videoToConcatenate = bestMomentsForVideos[0].first.file;
+    for (var videoData in videosProcessingData) {
+      videoData.expectedDuration =
+          oneFraction * videoData.normalizedTimeFraction;
+      videoData.samplingRate = (videoData.originalDuration.inMicroseconds /
+              videoData.expectedDuration.inMicroseconds)
+          .round();
 
-    for (int i = 1; i < bestMomentsForVideos.length; i++) {
-      videoToConcatenate = await joinVideos(
-          videoToConcatenate, bestMomentsForVideos[i].first.file);
+      switch (processingType) {
+        case ProcessingType.ByAudio:
+          {
+            bestMomentsForVideos.add(await getBestMomentByAudio(
+                videoData.video, videoData.samplingRate));
+
+            videoToConcatenate = bestMomentsForVideos.first;
+
+            for (int i = 1; i < bestMomentsForVideos.length; i++) {
+              videoToConcatenate =
+                  await joinVideos(videoToConcatenate, bestMomentsForVideos[i]);
+            }
+            break;
+          }
+
+        case ProcessingType.ByScene:
+          {
+            bestMomentsForVideos.add(await getBestMomentByScene(
+                videoData.video, videoData.samplingRate));
+
+            videoToConcatenate = bestMomentsForVideos.first;
+
+            for (int i = 1; i < bestMomentsForVideos.length; i++) {
+              videoToConcatenate =
+                  await joinVideos(videoToConcatenate, bestMomentsForVideos[i]);
+            }
+            break;
+          }
+      }
     }
 
     finalVideo = videoToConcatenate;

@@ -1,10 +1,10 @@
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-import 'package:storymaker/services/clip_sample.dart';
 import 'package:storymaker/services/audio_processor.dart';
 import 'package:storymaker/services/file_processor.dart';
 import 'package:storymaker/services/video_processor.dart';
+import 'package:storymaker/utilities/constants/general_processing_values.dart';
 
 class GeneralStoryProcessor extends ChangeNotifier {
   AudioProcessor _audioProcessor;
@@ -50,16 +50,24 @@ class GeneralStoryProcessor extends ChangeNotifier {
     }
   }
 
-  Future<void> makeStory(Duration duration) async {
-    await _videoProcessor.createFinalVideo(duration);
+  Future<void> makeStory(
+      Duration duration, ProcessingType processingType) async {
+    if (_videoProcessor.videos == null) {
+      print('ERROR');
+    }
 
-    if (_audioProcessor.audio != null &&
-        _audioProcessor.audio.existsSync() &&
+    if (_audioProcessor.audio != null) {
+      await _audioProcessor.createFinalAudio(duration);
+    }
+    await _videoProcessor.createFinalVideo(duration, processingType);
+
+    if (_audioProcessor.finalAudio != null &&
+        _audioProcessor.finalAudio.existsSync() &&
         _videoProcessor.finalVideo != null &&
         _videoProcessor.finalVideo.existsSync()) {
       processedClip = await joinAudioAndVideo(
-          _audioProcessor.audio, _videoProcessor.finalVideo);
-    } else if (_audioProcessor.audio == null &&
+          _audioProcessor.finalAudio, _videoProcessor.finalVideo);
+    } else if (_audioProcessor.finalAudio == null &&
         _videoProcessor.finalVideo != null &&
         _videoProcessor.finalVideo.existsSync()) {
       processedClip = _videoProcessor.finalVideo;
@@ -71,20 +79,16 @@ class GeneralStoryProcessor extends ChangeNotifier {
       print("ERROR");
     }
 
-    // FileProcessor.fileCleanup();
+    FileProcessor.filesToRemove.remove(processedClip);
+    FileProcessor.fileCleanup();
   }
 
   Future<void> testFunction() async {
-    List<ClipSample> samples = await _videoProcessor.getBestMomentsByAudio(
+    File sample = await _videoProcessor.getBestMomentByAudio(
         videoProcessor.videos.first, 10);
 
-    if (samples.isNotEmpty) {
-      for (var sample in samples) {
-        print('Path: ${sample.file.path}');
-        print('Starting point: ${sample.startingPoint}');
-        print('Ending point: ${sample.endingPoint}');
-        print('Mean volume: ${sample.meanVolume}');
-      }
+    if (sample != null) {
+      print('Path: ${sample.path}');
     }
 
     print('\nPROCESSING VIDEOS!');
@@ -94,14 +98,6 @@ class GeneralStoryProcessor extends ChangeNotifier {
 
     print(
         '\nJOINED VIDEOS DURATION: ${await _videoProcessor.getDuration(processedClip)}');
-
-    print('\nFRAME RATE: ${await _videoProcessor.getFrameRate(processedClip)}');
-    int number = 0;
-    for (var image in await _videoProcessor.getFramesFromVideo(processedClip)) {
-      print(image);
-      number++;
-    }
-    print("\nNUMBER OF FRAMES: $number!!!");
 
     File trimmedVideo = await _videoProcessor.trim(
         processedClip, Duration(seconds: 0), Duration(seconds: 1));

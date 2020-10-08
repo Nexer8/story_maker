@@ -1,23 +1,32 @@
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 import 'package:mime/mime.dart';
 import 'package:storymaker/utilities/constants/general_processing_values.dart';
 import 'package:storymaker/services/clip_sample.dart';
+import 'package:storymaker/utilities/duration_parser.dart';
+import 'package:tuple/tuple.dart';
 
 class FileProcessor extends ChangeNotifier {
   static int outputId = 0;
-  static List<File> createdFiles = List<File>();
+  static List<File> filesToRemove = List<File>();
 
   final FlutterFFmpeg flutterFFmpeg;
   final FlutterFFprobe flutterFFprobe;
+  final FlutterFFmpegConfig flutterFFmpegConfig;
   final String rawDocumentPath;
-  double avgVolume;
+  double meanVolume = 0;
   double maxVolume;
+  var sceneScores = List<double>();
+  var sceneMoments = List<Duration>();
 
   FileProcessor(
-      {this.rawDocumentPath, this.flutterFFmpeg, this.flutterFFprobe});
+      {this.rawDocumentPath,
+      this.flutterFFmpeg,
+      this.flutterFFprobe,
+      this.flutterFFmpegConfig});
 
   static bool isTimePeriodValid(Duration startingPoint, Duration endingPoint) =>
       startingPoint != null &&
@@ -48,14 +57,14 @@ class FileProcessor extends ChangeNotifier {
     final String outputPath =
         rawDocumentPath + "/trimmed${outputId++}" + extension;
     String commandToExecute =
-        "-y -i ${file.path} -ss ${startingPoint.toString()} -t ${(endingPoint - startingPoint).toString()} -c copy $outputPath";
+        "-y -i ${file.path} -ss ${startingPoint.toString()} -to ${endingPoint.toString()} -c copy $outputPath";
 
     int rc = await flutterFFmpeg.execute(commandToExecute);
 
     if (rc == 0) {
       trimmedFile = File(outputPath);
 
-      createdFiles.add(trimmedFile);
+      filesToRemove.add(trimmedFile);
 
       return trimmedFile;
     } else {
@@ -78,12 +87,12 @@ class FileProcessor extends ChangeNotifier {
   }
 
   static void fileCleanup() {
-    for (var file in createdFiles) {
+    for (var file in filesToRemove) {
       file.deleteSync();
     }
 
     print('Cleaned files!');
-    createdFiles.clear();
+    filesToRemove.clear();
   }
 
   Future<File> extractAudioFromVideo(File video) async {
@@ -101,7 +110,7 @@ class FileProcessor extends ChangeNotifier {
 
     if (rc == 0) {
       extractedAudio = File(outputPath);
-      createdFiles.add(extractedAudio);
+      filesToRemove.add(extractedAudio);
 
       return extractedAudio;
     } else {
@@ -111,36 +120,71 @@ class FileProcessor extends ChangeNotifier {
 
   void logCallback(int level, String message) {
     if (message.contains(r'mean_volume')) {
-      RegExp pattern = RegExp(r'mean_volume:\s(-?[0-9]*(\.[0-9]*)?)');
-
+      var pattern = RegExp(r'mean_volume:\s(-?[0-9]*(\.[0-9]*)?)');
       var match = pattern.firstMatch(message);
-      avgVolume = double.parse(match.group(1));
+
+      meanVolume = double.parse(match.group(1));
     } else if (message.contains(r'max_volume')) {
-      RegExp pattern = RegExp(r'max_volume:\s(-?[0-9]*(\.[0-9]*)?)');
-
+      var pattern = RegExp(r'max_volume:\s(-?[0-9]*(\.[0-9]*)?)');
       var match = pattern.firstMatch(message);
+
       maxVolume = double.parse(match.group(1));
+    } else if (message.contains(r'pts_time')) {
+      var momentPattern = RegExp(r'pts_time:(-?[0-9]*(\.[0-9]*)?)');
+      var match = momentPattern.firstMatch(message);
+
+      Duration currentMoment = DurationParser.parseDuration(match.group(1));
+
+      sceneMoments.add(currentMoment);
+    } else if (message.contains(r'scene_score')) {
+      var scorePattern = RegExp(r'scene_score=(-?[0-9]*(\.[0-9]*)?)');
+      var match = scorePattern.firstMatch(message);
+
+      double currentScore = double.parse(match.group(1));
+
+      sceneScores.add(currentScore);
     }
   }
 
-  Future<double> getAvgVolume(File file) async {
+  Future<double> getAvgVolume(
+      File file, Duration startingPoint, Duration endingPoint) async {
     if (!file.existsSync()) {
       return null;
     }
 
-    FlutterFFmpegConfig _flutterFFmpegConfig = FlutterFFmpegConfig();
-    _flutterFFmpegConfig.enableLogCallback(this.logCallback);
+    flutterFFmpegConfig.enableLogCallback(this.logCallback);
 
-    const int samplingRate = 10;
     final String commandToExecute =
-        "-y -t $samplingRate -i ${file.path} -af 'volumedetect' -vn -sn -dn -f null /dev/null";
+        "-y -ss ${startingPoint.toString()} -to ${endingPoint.toString()} -i ${file.path} -af 'volumedetect' -vn -sn -dn -f null /dev/null";
 
     int rc = await flutterFFmpeg.execute(commandToExecute);
 
-    _flutterFFmpegConfig.logCallback = null;
+    flutterFFmpegConfig.logCallback = null;
 
     if (rc == 0) {
-      return avgVolume;
+      return meanVolume;
+    } else {
+      return null;
+    }
+  }
+
+  Future<Tuple2<List<double>, List<Duration>>> getBestSceneScoresAndMoments(
+      File video) async {
+    if (!video.existsSync()) {
+      return null;
+    }
+
+    flutterFFmpegConfig.enableLogCallback(this.logCallback);
+
+    final String commandToExecute =
+        "-y -i ${video.path} -vf \"select = 'gte(scene,0)',metadata=print\" -f null /dev/null";
+
+    int rc = await flutterFFmpeg.execute(commandToExecute);
+
+    flutterFFmpegConfig.logCallback = null;
+
+    if (rc == 0) {
+      return Tuple2(sceneScores, sceneMoments);
     } else {
       return null;
     }
@@ -151,8 +195,7 @@ class FileProcessor extends ChangeNotifier {
       return null;
     }
 
-    FlutterFFmpegConfig _flutterFFmpegConfig = FlutterFFmpegConfig();
-    _flutterFFmpegConfig.enableLogCallback(this.logCallback);
+    flutterFFmpegConfig.enableLogCallback(this.logCallback);
 
     const int samplingRate = 10;
     final String commandToExecute =
@@ -160,7 +203,7 @@ class FileProcessor extends ChangeNotifier {
 
     int rc = await flutterFFmpeg.execute(commandToExecute);
 
-    _flutterFFmpegConfig.logCallback = null;
+    flutterFFmpegConfig.logCallback = null;
 
     if (rc == 0) {
       return maxVolume;
@@ -169,8 +212,7 @@ class FileProcessor extends ChangeNotifier {
     }
   }
 
-  Future<List<ClipSample>> getBestMomentsByAudio(
-      File video, int samplingRate) async {
+  Future<File> getBestMomentByAudio(File video, int samplingRate) async {
     if (video == null || await isSilent(video)) {
       return null;
     }
@@ -183,26 +225,76 @@ class FileProcessor extends ChangeNotifier {
     Duration step = duration ~/ samplingRate;
 
     while (currentPoint < duration) {
+      Duration startingPoint =
+          currentPoint + step <= duration ? currentPoint : duration - step;
+      Duration endingPoint =
+          currentPoint + step <= duration ? currentPoint + step : duration;
+
       chunks.add(ClipSample(
-          file: await trim(
-              video,
-              currentPoint + step <= duration ? currentPoint : duration - step,
-              currentPoint + step <= duration ? currentPoint + step : duration),
-          startingPoint:
-              currentPoint + step <= duration ? currentPoint : duration - step,
-          endingPoint: currentPoint + step <= duration
-              ? currentPoint + step
-              : duration));
+          file: video,
+          startingPoint: startingPoint,
+          endingPoint: endingPoint,
+          meanVolume: await getAvgVolume(video, startingPoint, endingPoint)));
 
       currentPoint += step;
     }
 
-    for (var chunk in chunks) {
-      chunk.meanVolume = await getAvgVolume(chunk.file);
-    }
-
     chunks.sort((b, a) => a.meanVolume.compareTo(b.meanVolume));
 
-    return chunks;
+    File bestMoment =
+        await trim(video, chunks.first.startingPoint, chunks.first.endingPoint);
+
+    return bestMoment;
+  }
+
+  Future<File> getBestMomentByScene(File video, int samplingRate) async {
+    if (video == null) {
+      return null;
+    }
+
+    Duration duration = await getDuration(video);
+    Duration step = duration ~/ samplingRate;
+    Tuple2<List<double>, List<Duration>> bestSceneScoresAndMoments =
+        await getBestSceneScoresAndMoments(video);
+
+    if (bestSceneScoresAndMoments == null) {
+      return null;
+    }
+
+    var bestMoments = List<ClipSample>();
+    var currentPoint = Duration();
+    int i = 0;
+
+    while (currentPoint < duration &&
+        i < bestSceneScoresAndMoments.item1.length - 1) {
+      double sceneValuesSum = 0;
+      int counter = 0;
+      Duration endingPoint = currentPoint;
+
+      while (endingPoint < currentPoint + step &&
+          i < bestSceneScoresAndMoments.item1.length - 1) {
+        sceneValuesSum += bestSceneScoresAndMoments.item1.elementAt(i);
+        counter++;
+
+        i++;
+        endingPoint = bestSceneScoresAndMoments.item2.elementAt(i);
+      }
+
+      bestMoments.add(ClipSample(
+          startingPoint: currentPoint,
+          endingPoint: currentPoint + step,
+          bestSceneScore: (sceneValuesSum / counter.toDouble())));
+
+      currentPoint = ((currentPoint + step) < duration)
+          ? currentPoint + step
+          : duration - step;
+    }
+
+    bestMoments.sort((b, a) => a.bestSceneScore.compareTo(b.bestSceneScore));
+
+    File bestMoment = await trim(
+        video, bestMoments.first.startingPoint, bestMoments.first.endingPoint);
+
+    return bestMoment;
   }
 }
