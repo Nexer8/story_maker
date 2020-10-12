@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:storymaker/components/audio_loader.dart';
 import 'package:storymaker/components/make_story_button.dart';
+import 'package:storymaker/components/length_picker.dart';
 import 'package:storymaker/components/video_loader.dart';
 import 'package:storymaker/components/video_player.dart';
 import 'package:storymaker/utilities/constants/screen_ids.dart';
@@ -21,6 +22,7 @@ class MainScreen extends StatelessWidget {
             SizedBox(
               height: 10.0,
             ),
+            LengthPicker(),
             Container(
               height: 100.0,
               child: Row(
