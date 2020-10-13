@@ -89,7 +89,7 @@ void main() {
 
       const String currentMomentString = 'pts_time:20.2';
       final List<Duration> sceneMoments = [
-        Duration(seconds: 20, milliseconds: 2)
+        Duration(seconds: 20, milliseconds: 200)
       ];
 
       const String sceneScoreString = 'scene_score=0.9';
@@ -181,7 +181,7 @@ void main() {
         fileProcessor.maxVolume = maxVolume;
         const double meanVolume = 12;
         fileProcessor.meanVolume = meanVolume;
-        const int samplingRate = 12;
+        const double samplingRate = 12;
 
         when(flutterFFprobeMock.getMediaInformation(videoFile.path)).thenAnswer(
             (_) async =>
@@ -204,9 +204,9 @@ void main() {
       test('ut_FileProcessor_getBestMomentByScene_default', () async {
         const double meanVolume = 12;
         fileProcessor.meanVolume = meanVolume;
-        const int samplingRate = 12;
+        const double samplingRate = 12;
         final List<Duration> sceneMoments = [
-          Duration(seconds: 20, milliseconds: 2)
+          Duration(seconds: 20, milliseconds: 200)
         ];
         fileProcessor.sceneMoments = sceneMoments;
         final List<double> sceneScores = [0.9];

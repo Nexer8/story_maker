@@ -17,7 +17,7 @@ class FileProcessor extends ChangeNotifier {
   final FlutterFFprobe flutterFFprobe;
   final FlutterFFmpegConfig flutterFFmpegConfig;
   final String rawDocumentPath;
-  double meanVolume = 0;
+  double meanVolume;
   double maxVolume;
   var sceneScores = List<double>();
   var sceneMoments = List<Duration>();
@@ -211,7 +211,7 @@ class FileProcessor extends ChangeNotifier {
     }
   }
 
-  Future<File> getBestMomentByAudio(File video, int samplingRate) async {
+  Future<File> getBestMomentByAudio(File video, double samplingRate) async {
     if (video == null || await isSilent(video)) {
       return null;
     }
@@ -221,7 +221,8 @@ class FileProcessor extends ChangeNotifier {
     Duration duration = await getDuration(video);
     var currentPoint = Duration();
 
-    Duration step = duration ~/ samplingRate;
+    Duration step = Duration(
+        microseconds: (duration.inMicroseconds / samplingRate).floor());
 
     while (currentPoint < duration) {
       Duration startingPoint =
@@ -246,13 +247,15 @@ class FileProcessor extends ChangeNotifier {
     return bestMoment;
   }
 
-  Future<File> getBestMomentByScene(File video, int samplingRate) async {
+  Future<File> getBestMomentByScene(File video, double samplingRate) async {
     if (video == null) {
       return null;
     }
 
     Duration duration = await getDuration(video);
-    Duration step = duration ~/ samplingRate;
+    Duration step = Duration(
+        microseconds: (duration.inMicroseconds / samplingRate).floor());
+
     Tuple2<List<double>, List<Duration>> bestSceneScoresAndMoments =
         await getBestSceneScoresAndMoments(video);
 
@@ -264,8 +267,8 @@ class FileProcessor extends ChangeNotifier {
     var currentPoint = Duration();
     int i = 0;
 
-    while (
-        currentPoint < duration && i < bestSceneScoresAndMoments.item1.length) {
+    while (currentPoint + step < duration &&
+        i < bestSceneScoresAndMoments.item1.length) {
       double sceneValuesSum = 0;
       int counter = 0;
       Duration endingPoint = currentPoint;

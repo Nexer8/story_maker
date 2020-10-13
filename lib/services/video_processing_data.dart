@@ -5,7 +5,7 @@ class VideoProcessingData {
   final Duration originalDuration;
   double normalizedTimeFraction;
   Duration expectedDuration;
-  int samplingRate;
+  double samplingRate;
 
   VideoProcessingData({this.video, this.originalDuration});
 }

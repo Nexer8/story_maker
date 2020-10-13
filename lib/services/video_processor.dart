@@ -8,9 +8,9 @@ import 'package:storymaker/utilities/constants/general_processing_values.dart';
 class VideoProcessor extends FileProcessor {
   List<File> _videos;
   File _finalVideo;
-  var totalVideosDuration = Duration();
-  var longestVideoDuration = Duration();
-  double completeFactor = 0;
+  Duration totalVideosDuration;
+  Duration longestVideoDuration;
+  double completeFactor;
 
   List<File> get videos => _videos;
 
@@ -66,6 +66,9 @@ class VideoProcessor extends FileProcessor {
       loadVideosProcessingDataAndSetLongestAndTotalVideoDuration() async {
     var videosToProcess = List<VideoProcessingData>();
 
+    totalVideosDuration = Duration();
+    longestVideoDuration = Duration();
+
     for (var video in _videos) {
       Duration currentVideoDuration = await getDuration(video);
 
@@ -87,6 +90,8 @@ class VideoProcessor extends FileProcessor {
 
   Duration computeOneFractionValueAndSetNormalizedTimeFraction(
       List<VideoProcessingData> videosToProcess, Duration finalDuration) {
+    completeFactor = 0;
+
     for (var videoData in videosToProcess) {
       videoData.normalizedTimeFraction =
           videoData.originalDuration.inMicroseconds.toDouble() /
@@ -97,7 +102,7 @@ class VideoProcessor extends FileProcessor {
 
     var oneFraction = Duration(
         microseconds:
-            (finalDuration.inMicroseconds.toDouble() / completeFactor).round());
+            (finalDuration.inMicroseconds.toDouble() / completeFactor).floor());
 
     return oneFraction;
   }
@@ -131,9 +136,8 @@ class VideoProcessor extends FileProcessor {
     for (var videoData in videosProcessingData) {
       videoData.expectedDuration =
           oneFraction * videoData.normalizedTimeFraction;
-      videoData.samplingRate = (videoData.originalDuration.inMicroseconds /
-              videoData.expectedDuration.inMicroseconds)
-          .round();
+      videoData.samplingRate = videoData.originalDuration.inMicroseconds /
+          videoData.expectedDuration.inMicroseconds;
 
       switch (processingType) {
         case ProcessingType.ByAudio:
@@ -166,6 +170,8 @@ class VideoProcessor extends FileProcessor {
       }
     }
 
+    sceneScores.clear();
+    sceneMoments.clear();
     finalVideo = videoToConcatenate;
   }
 }
