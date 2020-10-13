@@ -31,22 +31,13 @@ void main() {
       test('ut_AudioProcessor_createFinalAudio_default', () async {
         final finalDuration = Duration(seconds: 1);
         final duration = Duration(seconds: 5);
-        final finalAudio = File('test_resources/trimmed1.mp3');
+        final finalAudio = File('test_resources/trimmed0.mp3');
         audioProcessor.audio = audioFile;
         audioProcessor.maxVolume = 20;
-
-        when(audioProcessor.getDuration(audioFile))
-            .thenAnswer((_) async => Future<Duration>.value(duration));
 
         when(flutterFFprobeMock.getMediaInformation(audioFile.path)).thenAnswer(
             (_) async =>
                 Future<Map>.value({'duration': duration.inMilliseconds}));
-
-        when(audioProcessor.getBestMomentByAudio(
-                audioFile,
-                (duration.inMicroseconds / finalDuration.inMilliseconds)
-                    .round()))
-            .thenAnswer((_) => Future<File>.value(finalAudio));
 
         when(flutterFFmpegMock.execute(any))
             .thenAnswer((_) async => Future<int>.value(0));

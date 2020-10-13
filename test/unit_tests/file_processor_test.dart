@@ -174,5 +174,59 @@ void main() {
             .called(1);
       });
     });
+
+    group('FileProcessor getBestMomentByAudio', () {
+      test('ut_FileProcessor_getBestMomentByAudio_default', () async {
+        const double maxVolume = 12;
+        fileProcessor.maxVolume = maxVolume;
+        const double meanVolume = 12;
+        fileProcessor.meanVolume = meanVolume;
+        const int samplingRate = 12;
+
+        when(flutterFFprobeMock.getMediaInformation(videoFile.path)).thenAnswer(
+            (_) async =>
+                Future<Map>.value({'duration': videoDuration.inMilliseconds}));
+
+        when(flutterFFmpegMock.execute(any))
+            .thenAnswer((_) async => Future<int>.value(0));
+
+        final regex = RegExp(r'^test_resources\/trimmed.\.mp4$');
+
+        expect(
+            regex.hasMatch((await fileProcessor.getBestMomentByAudio(
+                    videoFile, samplingRate))
+                .path),
+            true);
+      });
+    });
+
+    group('FileProcessor getBestMomentByScene', () {
+      test('ut_FileProcessor_getBestMomentByScene_default', () async {
+        const double meanVolume = 12;
+        fileProcessor.meanVolume = meanVolume;
+        const int samplingRate = 12;
+        final List<Duration> sceneMoments = [
+          Duration(seconds: 20, milliseconds: 2)
+        ];
+        fileProcessor.sceneMoments = sceneMoments;
+        final List<double> sceneScores = [0.9];
+        fileProcessor.sceneScores = sceneScores;
+
+        when(flutterFFprobeMock.getMediaInformation(videoFile.path)).thenAnswer(
+            (_) async =>
+                Future<Map>.value({'duration': videoDuration.inMilliseconds}));
+
+        when(flutterFFmpegMock.execute(any))
+            .thenAnswer((_) async => Future<int>.value(0));
+
+        final regex = RegExp(r'^test_resources\/trimmed.\.mp4$');
+
+        expect(
+            regex.hasMatch((await fileProcessor.getBestMomentByScene(
+                    videoFile, samplingRate))
+                .path),
+            true);
+      });
+    });
   });
 }
