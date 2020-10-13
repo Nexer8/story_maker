@@ -14,15 +14,15 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
   group('VideoProcessor tests', () {
-    final FlutterFFmpegMock flutterFFmpegMock = FlutterFFmpegMock();
-    final FlutterFFprobeMock flutterFFprobeMock = FlutterFFprobeMock();
+    final flutterFFmpegMock = FlutterFFmpegMock();
+    final flutterFFprobeMock = FlutterFFprobeMock();
 
-    final VideoProcessor videoProcessor = VideoProcessor(
+    final videoProcessor = VideoProcessor(
         flutterFFmpeg: flutterFFmpegMock,
         flutterFFprobe: flutterFFprobeMock,
         rawDocumentPath: 'test_resources');
-    final File firstVideo = File('test_resources/sample_video.mp4');
-    final File secondVideo = File('test_resources/sample_video.mp4');
+    final firstVideo = File('test_resources/sample_video.mp4');
+    final secondVideo = File('test_resources/sample_video.mp4');
 
     group('VideoProcessor joinVideos', () {
       test('ut_VideoProcessor_joinVideos_default', () async {
