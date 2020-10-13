@@ -20,7 +20,7 @@ class MakeStoryButton extends StatelessWidget {
             if (generalStoryProcessor.isOperational()) {
               print('General story processor is operational!');
 
-              await generalStoryProcessor.makeStory(Duration(seconds: 5),
+              await generalStoryProcessor.makeStory(
                   ProcessingType.ByScene); //TODO: remove hardcoded values
             } else {
               print('Not operational');

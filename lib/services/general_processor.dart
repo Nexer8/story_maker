@@ -10,6 +10,7 @@ class GeneralStoryProcessor extends ChangeNotifier {
   AudioProcessor _audioProcessor;
   VideoProcessor _videoProcessor;
   File _processedClip;
+  Duration _finalDuration = Duration(seconds: 5);
 
   AudioProcessor get audioProcessor => _audioProcessor;
 
@@ -32,6 +33,13 @@ class GeneralStoryProcessor extends ChangeNotifier {
     notifyListeners();
   }
 
+  Duration get finalDuration => _finalDuration;
+
+  set finalDuration(Duration finalDuration) {
+    _finalDuration = finalDuration;
+    notifyListeners();
+  }
+
   GeneralStoryProcessor(this._audioProcessor, this._videoProcessor);
 
   void loadVideos(List<File> videos) {
@@ -50,16 +58,15 @@ class GeneralStoryProcessor extends ChangeNotifier {
     }
   }
 
-  Future<void> makeStory(
-      Duration duration, ProcessingType processingType) async {
+  Future<void> makeStory(ProcessingType processingType) async {
     if (_videoProcessor.videos == null) {
       print('ERROR');
     }
 
     if (_audioProcessor.audio != null) {
-      await _audioProcessor.createFinalAudio(duration);
+      await _audioProcessor.createFinalAudio(finalDuration);
     }
-    await _videoProcessor.createFinalVideo(duration, processingType);
+    await _videoProcessor.createFinalVideo(finalDuration, processingType);
 
     if (_audioProcessor.finalAudio != null &&
         _audioProcessor.finalAudio.existsSync() &&
