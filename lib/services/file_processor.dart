@@ -284,7 +284,7 @@ class FileProcessor extends ChangeNotifier {
           endingPoint: currentPoint + step,
           bestSceneScore: (sceneValuesSum / counter.toDouble())));
 
-      currentPoint = ((currentPoint + step) < duration)
+      currentPoint = ((currentPoint + step) <= duration)
           ? currentPoint + step
           : duration - step;
     }
