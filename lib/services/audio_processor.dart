@@ -40,8 +40,8 @@ class AudioProcessor extends FileProcessor {
     }
 
     Duration duration = await getDuration(audio);
-    File bestAudio = await getBestMomentByAudio(audio,
-        (duration.inMicroseconds / finalDuration.inMilliseconds).round());
+    File bestAudio = await getBestMomentByAudio(
+        audio, duration.inMicroseconds / finalDuration.inMilliseconds);
 
     finalAudio = bestAudio;
   }

@@ -34,6 +34,7 @@ void main() {
         final finalAudio = File('test_resources/trimmed0.mp3');
         audioProcessor.audio = audioFile;
         audioProcessor.maxVolume = 20;
+        audioProcessor.meanVolume = 10;
 
         when(flutterFFprobeMock.getMediaInformation(audioFile.path)).thenAnswer(
             (_) async =>

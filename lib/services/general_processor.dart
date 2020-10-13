@@ -63,6 +63,8 @@ class GeneralStoryProcessor extends ChangeNotifier {
       print('ERROR');
     }
 
+    processedClip = null;
+
     if (_audioProcessor.audio != null) {
       await _audioProcessor.createFinalAudio(finalDuration);
     }
