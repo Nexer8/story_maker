@@ -168,6 +168,27 @@ class FileProcessor extends ChangeNotifier {
     }
   }
 
+  Future<double> getMaxVolume(File file) async {
+    if (!file.existsSync()) {
+      return null;
+    }
+
+    flutterFFmpegConfig.enableLogCallback(this.logCallback);
+
+    final String commandToExecute =
+        "-y -i ${file.path} -af 'volumedetect' -vn -sn -dn -f null /dev/null";
+
+    int rc = await flutterFFmpeg.execute(commandToExecute);
+
+    flutterFFmpegConfig.logCallback = null;
+
+    if (rc == 0) {
+      return maxVolume;
+    } else {
+      return null;
+    }
+  }
+
   Future<Tuple2<List<double>, List<Duration>>> getBestSceneScoresAndMoments(
       File video) async {
     if (!video.existsSync()) {
@@ -185,28 +206,6 @@ class FileProcessor extends ChangeNotifier {
 
     if (rc == 0) {
       return Tuple2(sceneScores, sceneMoments);
-    } else {
-      return null;
-    }
-  }
-
-  Future<double> getMaxVolume(File file) async {
-    if (!file.existsSync()) {
-      return null;
-    }
-
-    flutterFFmpegConfig.enableLogCallback(this.logCallback);
-
-    const int samplingRate = 10;
-    final String commandToExecute =
-        "-y -t $samplingRate -i ${file.path} -af 'volumedetect' -vn -sn -dn -f null /dev/null";
-
-    int rc = await flutterFFmpeg.execute(commandToExecute);
-
-    flutterFFmpegConfig.logCallback = null;
-
-    if (rc == 0) {
-      return maxVolume;
     } else {
       return null;
     }
