@@ -264,8 +264,8 @@ class FileProcessor extends ChangeNotifier {
     var currentPoint = Duration();
     int i = 0;
 
-    while (currentPoint < duration &&
-        i < bestSceneScoresAndMoments.item1.length - 1) {
+    while (
+        currentPoint < duration && i < bestSceneScoresAndMoments.item1.length) {
       double sceneValuesSum = 0;
       int counter = 0;
       Duration endingPoint = currentPoint;
@@ -284,7 +284,7 @@ class FileProcessor extends ChangeNotifier {
           endingPoint: currentPoint + step,
           bestSceneScore: (sceneValuesSum / counter.toDouble())));
 
-      currentPoint = ((currentPoint + step) < duration)
+      currentPoint = ((currentPoint + step) <= duration)
           ? currentPoint + step
           : duration - step;
     }

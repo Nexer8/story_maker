@@ -104,7 +104,6 @@ class VideoProcessor extends FileProcessor {
 
   Future<void> createFinalVideo(
       Duration finalDuration, ProcessingType processingType) async {
-    // TODO: add an enum to choose the method
     if (finalDuration > maximalDuration) {
       print('Final Duration > Maximal Duration');
       return;
