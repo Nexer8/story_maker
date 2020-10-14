@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:storymaker/services/general_processor.dart';
-import 'package:storymaker/utilities/constants/general_processing_values.dart';
+import 'package:storymaker/utils/constants/general_processing_values.dart';
 
 class LengthPicker extends StatefulWidget {
   @override
