@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 import 'package:storymaker/services/file_processor.dart';
 import 'package:storymaker/services/video_processing_data.dart';
-import 'package:storymaker/utilities/constants/general_processing_values.dart';
+import 'package:storymaker/utils/constants/general_processing_values.dart';
 
 class VideoProcessor extends FileProcessor {
   List<File> _videos;
@@ -124,6 +124,10 @@ class VideoProcessor extends FileProcessor {
 
     if (totalVideosDuration < finalDuration) {
       print('Too few files selected'); // TODO: To implement better
+      return;
+    }
+    if (totalVideosDuration < minimalDuration) {
+      print('Too short files selected');
       return;
     }
 

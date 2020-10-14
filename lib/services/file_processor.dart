@@ -4,9 +4,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 import 'package:mime/mime.dart';
-import 'package:storymaker/utilities/constants/general_processing_values.dart';
+import 'package:storymaker/utils/constants/general_processing_values.dart';
 import 'package:storymaker/services/clip_sample.dart';
-import 'package:storymaker/utilities/duration_parser.dart';
+import 'package:storymaker/utils/duration_parser.dart';
 import 'package:tuple/tuple.dart';
 
 class FileProcessor extends ChangeNotifier {

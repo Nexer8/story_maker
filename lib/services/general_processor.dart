@@ -4,12 +4,13 @@ import 'package:flutter/foundation.dart';
 import 'package:storymaker/services/audio_processor.dart';
 import 'package:storymaker/services/file_processor.dart';
 import 'package:storymaker/services/video_processor.dart';
-import 'package:storymaker/utilities/constants/general_processing_values.dart';
+import 'package:storymaker/utils/constants/general_processing_values.dart';
 
 class GeneralStoryProcessor extends ChangeNotifier {
   AudioProcessor _audioProcessor;
   VideoProcessor _videoProcessor;
   File _processedClip;
+  ProcessingType _processingType = ProcessingType.ByAudio;
   Duration _finalDuration = Duration(seconds: 5);
 
   AudioProcessor get audioProcessor => _audioProcessor;
@@ -30,6 +31,13 @@ class GeneralStoryProcessor extends ChangeNotifier {
 
   set processedClip(File processedClip) {
     _processedClip = processedClip;
+    notifyListeners();
+  }
+
+  ProcessingType get processingType => _processingType;
+
+  set processingType(ProcessingType processingType) {
+    _processingType = processingType;
     notifyListeners();
   }
 
@@ -58,11 +66,28 @@ class GeneralStoryProcessor extends ChangeNotifier {
     }
   }
 
-  Future<void> makeStory(ProcessingType processingType) async {
+  bool isFinalVideoCreated() =>
+      _videoProcessor.finalVideo != null &&
+      _videoProcessor.finalVideo.existsSync();
+
+  bool isFinalAudioCreated() =>
+      audioProcessor.finalAudio != null &&
+      _audioProcessor.finalAudio.existsSync();
+
+  bool areFinalAudioAndVideoCreated() =>
+      isFinalAudioCreated() && isFinalVideoCreated();
+
+  bool isVideoToBeWithoutJoiningAudio() =>
+      !isFinalAudioCreated() && isFinalVideoCreated();
+
+  Future<void> makeStory() async {
     if (_videoProcessor.videos == null) {
       print('ERROR');
     }
 
+    if (processedClip != null && processedClip.existsSync()) {
+      processedClip.deleteSync();
+    }
     processedClip = null;
 
     if (_audioProcessor.audio != null) {
@@ -70,23 +95,18 @@ class GeneralStoryProcessor extends ChangeNotifier {
     }
     await _videoProcessor.createFinalVideo(finalDuration, processingType);
 
-    if (_audioProcessor.finalAudio != null &&
-        _audioProcessor.finalAudio.existsSync() &&
-        _videoProcessor.finalVideo != null &&
-        _videoProcessor.finalVideo.existsSync()) {
+    if (areFinalAudioAndVideoCreated()) {
       processedClip = await joinAudioAndVideo(
           _audioProcessor.finalAudio, _videoProcessor.finalVideo);
-    } else if (_audioProcessor.finalAudio == null &&
-        _videoProcessor.finalVideo != null &&
-        _videoProcessor.finalVideo.existsSync()) {
+    } else if (isVideoToBeWithoutJoiningAudio()) {
       processedClip = _videoProcessor.finalVideo;
-
-      print(processedClip.path);
-      print(
-          'Processed clip length: ${await _videoProcessor.getDuration(processedClip)}');
     } else {
       print("ERROR");
     }
+
+    print(processedClip.path);
+    print(
+        'Processed clip length: ${await _videoProcessor.getDuration(processedClip)}');
 
     FileProcessor.filesToRemove.remove(processedClip);
     FileProcessor.fileCleanup();

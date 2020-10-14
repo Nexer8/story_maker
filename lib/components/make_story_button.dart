@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 import 'package:provider/provider.dart';
+import 'package:storymaker/components/progress_dialog_window.dart';
 import 'package:storymaker/services/general_processor.dart';
-import 'package:storymaker/utilities/constants/general_processing_values.dart';
 
 class MakeStoryButton extends StatelessWidget {
   @override
@@ -20,8 +21,20 @@ class MakeStoryButton extends StatelessWidget {
             if (generalStoryProcessor.isOperational()) {
               print('General story processor is operational!');
 
-              await generalStoryProcessor.makeStory(
-                  ProcessingType.ByScene); //TODO: remove hardcoded values
+              ProgressDialog progressDialog =
+                  ProgressDialogWindow.getProgressDialog(
+                      context, 'Making a story');
+              progressDialog.show();
+
+              try {
+                await generalStoryProcessor.makeStory();
+              } catch (e) {
+                progressDialog.hide();
+              }
+
+              if (progressDialog.isShowing()) {
+                progressDialog.hide();
+              }
             } else {
               print('Not operational');
             }
