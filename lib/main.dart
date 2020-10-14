@@ -11,7 +11,6 @@ import 'package:storymaker/services/audio_processor.dart';
 import 'package:storymaker/services/general_processor.dart';
 import 'package:storymaker/services/service_locator.dart';
 import 'package:storymaker/services/video_processor.dart';
-import 'package:storymaker/utils/app_state_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -45,9 +44,6 @@ class StoryMaker extends StatelessWidget {
                   flutterFFmpegConfig:
                       DIContainer.getIt.get<FlutterFFmpegConfig>(),
                   rawDocumentPath: rawDocumentPath)),
-        ),
-        ChangeNotifierProvider.value(
-          value: AppStateController(),
         ),
       ],
       child: MaterialApp(
