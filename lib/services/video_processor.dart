@@ -3,28 +3,15 @@ import 'dart:io';
 import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 import 'package:storymaker/services/file_processor.dart';
 import 'package:storymaker/services/video_processing_data.dart';
+import 'package:storymaker/utils/constants/custom_exceptions.dart';
 import 'package:storymaker/utils/constants/general_processing_values.dart';
 
 class VideoProcessor extends FileProcessor {
-  List<File> _videos;
-  File _finalVideo;
+  List<File> videos;
+  File finalVideo;
   Duration totalVideosDuration;
   Duration longestVideoDuration;
   double completeFactor;
-
-  List<File> get videos => _videos;
-
-  set videos(List<File> videos) {
-    _videos = videos;
-    notifyListeners();
-  }
-
-  File get finalVideo => _finalVideo;
-
-  set finalVideo(File finalVideo) {
-    _finalVideo = finalVideo;
-    notifyListeners();
-  }
 
   VideoProcessor(
       {FlutterFFmpeg flutterFFmpeg,
@@ -63,13 +50,14 @@ class VideoProcessor extends FileProcessor {
   }
 
   Future<List<VideoProcessingData>>
-      loadVideosProcessingDataAndSetLongestAndTotalVideoDuration() async {
+      loadVideosProcessingDataAndSetLongestAndTotalVideoDuration(
+          Duration finalDuration) async {
     var videosToProcess = List<VideoProcessingData>();
 
     totalVideosDuration = Duration();
     longestVideoDuration = Duration();
 
-    for (var video in _videos) {
+    for (var video in videos) {
       Duration currentVideoDuration = await getDuration(video);
 
       if (currentVideoDuration == null) {
@@ -83,6 +71,13 @@ class VideoProcessor extends FileProcessor {
       totalVideosDuration += currentVideoDuration;
       videosToProcess.add(VideoProcessingData(
           video: video, originalDuration: currentVideoDuration));
+    }
+
+    if (totalVideosDuration < finalDuration) {
+      throw VideosShortenThanFinalDurationException();
+    }
+    if (totalVideosDuration < minimalDuration) {
+      throw VideosShorterThanMinimalDurationException();
     }
 
     return videosToProcess;
@@ -110,26 +105,12 @@ class VideoProcessor extends FileProcessor {
   Future<void> createFinalVideo(
       Duration finalDuration, ProcessingType processingType) async {
     if (finalDuration > maximalDuration) {
-      print('Final Duration > Maximal Duration');
-      return;
+      throw ExceededDurationException();
     }
 
     List<VideoProcessingData> videosProcessingData =
-        await loadVideosProcessingDataAndSetLongestAndTotalVideoDuration();
-
-    if (videosProcessingData == null) {
-      print('VideoProcessingData is null');
-      return;
-    }
-
-    if (totalVideosDuration < finalDuration) {
-      print('Too few files selected'); // TODO: To implement better
-      return;
-    }
-    if (totalVideosDuration < minimalDuration) {
-      print('Too short files selected');
-      return;
-    }
+        await loadVideosProcessingDataAndSetLongestAndTotalVideoDuration(
+            finalDuration);
 
     Duration oneFraction = computeOneFractionValueAndSetNormalizedTimeFraction(
         videosProcessingData, finalDuration);

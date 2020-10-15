@@ -16,21 +16,17 @@ class AudioLoader extends StatelessWidget {
     return Expanded(
       child: InkWell(
         onTap: () async {
-          print('Audio button was pressed');
           File audio;
 
           ProgressDialog progressDialog =
-              ProgressDialogWindow.getProgressDialog(context, 'Loading Audio');
-          progressDialog.show();
+              ProgressDialogWindow.getProgressDialog(context, 'Loading audio');
+          await progressDialog.show();
 
           try {
             audio = await FilesPicker.pickAudioFromDevice();
-          } catch (e) {
-            progressDialog.hide();
-            print(e);
+          } catch (e) {} finally {
+            await progressDialog.hide();
           }
-
-          progressDialog.hide();
 
           if (audio != null) {
             generalStoryProcessor.loadAudio(audio);

@@ -2,25 +2,12 @@ import 'dart:io';
 
 import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 import 'package:storymaker/services/file_processor.dart';
+import 'package:storymaker/utils/constants/custom_exceptions.dart';
 import 'package:storymaker/utils/constants/general_processing_values.dart';
 
 class AudioProcessor extends FileProcessor {
-  File _audio;
-  File _finalAudio;
-
-  File get audio => _audio;
-
-  set audio(File audio) {
-    _audio = audio;
-    notifyListeners();
-  }
-
-  File get finalAudio => _finalAudio;
-
-  set finalAudio(File finalAudio) {
-    _finalAudio = finalAudio;
-    notifyListeners();
-  }
+  File audio;
+  File finalAudio;
 
   AudioProcessor(
       {FlutterFFmpeg flutterFFmpeg,
@@ -35,8 +22,7 @@ class AudioProcessor extends FileProcessor {
 
   Future<void> createFinalAudio(Duration finalDuration) async {
     if (finalDuration > maximalDuration) {
-      print('Final Duration > Maximal Duration');
-      return;
+      throw ExceededDurationException();
     }
 
     Duration duration = await getDuration(audio);

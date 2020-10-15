@@ -73,7 +73,8 @@ void main() {
                 {'duration': secondVideoDuration.inMilliseconds}));
 
         List<VideoProcessingData> result = await videoProcessor
-            .loadVideosProcessingDataAndSetLongestAndTotalVideoDuration();
+            .loadVideosProcessingDataAndSetLongestAndTotalVideoDuration(
+                finalDuration);
 
         for (int i = 0; i < result.length; i++) {
           expect(result[i].video.path, videosToProcess[i].video.path);
