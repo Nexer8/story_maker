@@ -4,28 +4,15 @@ import 'package:flutter/foundation.dart';
 import 'package:storymaker/services/audio_processor.dart';
 import 'package:storymaker/services/file_processor.dart';
 import 'package:storymaker/services/video_processor.dart';
+import 'package:storymaker/utils/constants/custom_exceptions.dart';
 import 'package:storymaker/utils/constants/general_processing_values.dart';
 
 class GeneralStoryProcessor extends ChangeNotifier {
   AudioProcessor _audioProcessor;
   VideoProcessor _videoProcessor;
   File _processedClip;
-  ProcessingType _processingType = ProcessingType.ByAudio;
-  Duration _finalDuration = Duration(seconds: 5);
-
-  AudioProcessor get audioProcessor => _audioProcessor;
-
-  set audioProcessor(AudioProcessor audioProcessor) {
-    _audioProcessor = audioProcessor;
-    notifyListeners();
-  }
-
-  VideoProcessor get videoProcessor => _videoProcessor;
-
-  set videoProcessor(VideoProcessor videoProcessor) {
-    _videoProcessor = videoProcessor;
-    notifyListeners();
-  }
+  ProcessingType processingType = ProcessingType.ByAudio;
+  Duration finalDuration = Duration(seconds: 5);
 
   File get processedClip => _processedClip;
 
@@ -34,44 +21,24 @@ class GeneralStoryProcessor extends ChangeNotifier {
     notifyListeners();
   }
 
-  ProcessingType get processingType => _processingType;
-
-  set processingType(ProcessingType processingType) {
-    _processingType = processingType;
-    notifyListeners();
-  }
-
-  Duration get finalDuration => _finalDuration;
-
-  set finalDuration(Duration finalDuration) {
-    _finalDuration = finalDuration;
-    notifyListeners();
-  }
-
   GeneralStoryProcessor(this._audioProcessor, this._videoProcessor);
 
   void loadVideos(List<File> videos) {
-    videoProcessor.videos = videos;
+    _videoProcessor.videos = videos;
   }
 
   void loadAudio(File audio) {
-    audioProcessor.audio = audio;
+    _audioProcessor.audio = audio;
   }
 
-  bool isOperational() {
-    if (_videoProcessor.videos != null) {
-      return true;
-    } else {
-      return false;
-    }
-  }
+  bool isOperational() => _videoProcessor.videos != null;
 
   bool isFinalVideoCreated() =>
       _videoProcessor.finalVideo != null &&
       _videoProcessor.finalVideo.existsSync();
 
   bool isFinalAudioCreated() =>
-      audioProcessor.finalAudio != null &&
+      _audioProcessor.finalAudio != null &&
       _audioProcessor.finalAudio.existsSync();
 
   bool areFinalAudioAndVideoCreated() =>
@@ -80,15 +47,19 @@ class GeneralStoryProcessor extends ChangeNotifier {
   bool isVideoToBeWithoutJoiningAudio() =>
       !isFinalAudioCreated() && isFinalVideoCreated();
 
-  Future<void> makeStory() async {
-    if (_videoProcessor.videos == null) {
-      print('ERROR');
-    }
-
+  void cleanUp() {
     if (processedClip != null && processedClip.existsSync()) {
       processedClip.deleteSync();
     }
     processedClip = null;
+  }
+
+  Future<void> makeStory() async {
+    if (!isOperational()) {
+      throw NoVideosLoadedException();
+    }
+
+    cleanUp();
 
     if (_audioProcessor.audio != null) {
       await _audioProcessor.createFinalAudio(finalDuration);
@@ -101,7 +72,7 @@ class GeneralStoryProcessor extends ChangeNotifier {
     } else if (isVideoToBeWithoutJoiningAudio()) {
       processedClip = _videoProcessor.finalVideo;
     } else {
-      print("ERROR");
+      throw UnknownException();
     }
 
     print(processedClip.path);
@@ -114,7 +85,7 @@ class GeneralStoryProcessor extends ChangeNotifier {
 
   Future<void> testFunction() async {
     File sample = await _videoProcessor.getBestMomentByAudio(
-        videoProcessor.videos.first, 10);
+        _videoProcessor.videos.first, 10);
 
     if (sample != null) {
       print('Path: ${sample.path}');
@@ -153,7 +124,7 @@ class GeneralStoryProcessor extends ChangeNotifier {
 
   Future<File> joinAudioAndVideo(File audio, File video) async {
     if (!audio.existsSync() || !video.existsSync()) {
-      return null;
+      throw InvalidFileException();
     }
 
     File joinedVideo;
@@ -163,15 +134,15 @@ class GeneralStoryProcessor extends ChangeNotifier {
     final String commandToExecute =
         "-y -i ${video.path} -i ${audio.path} -c:v copy -c:a aac -map 0:v:0 -map 1:a:0 $outputPath";
 
-    int rc = await videoProcessor.flutterFFmpeg.execute(commandToExecute);
+    int rc = await _videoProcessor.flutterFFmpeg.execute(commandToExecute);
 
     if (rc == 0) {
       joinedVideo = File(outputPath);
-      // FileProcessor.createdFiles.add(joinedVideo);
+      FileProcessor.filesToRemove.add(joinedVideo);
 
       return joinedVideo;
     } else {
-      return null;
+      throw UnknownException();
     }
   }
 }

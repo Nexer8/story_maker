@@ -16,22 +16,16 @@ class VideoLoader extends StatelessWidget {
     return Expanded(
       child: InkWell(
         onTap: () async {
-          print('Video button was pressed');
           List<File> videos;
 
           ProgressDialog progressDialog =
-              ProgressDialogWindow.getProgressDialog(context, 'Loading Video');
-          progressDialog.show();
+              ProgressDialogWindow.getProgressDialog(context, 'Loading video');
+          await progressDialog.show();
 
           try {
             videos = await FilesPicker.pickVideosFromGallery();
-          } catch (e) {
-            progressDialog.hide();
-            print(e);
-          }
-
-          if (progressDialog.isShowing()) {
-            progressDialog.hide();
+          } catch (e) {} finally {
+            await progressDialog.hide();
           }
 
           if (videos != null) {

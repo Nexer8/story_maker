@@ -1,15 +1,14 @@
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 import 'package:mime/mime.dart';
+import 'package:storymaker/utils/constants/custom_exceptions.dart';
 import 'package:storymaker/utils/constants/general_processing_values.dart';
 import 'package:storymaker/services/clip_sample.dart';
 import 'package:storymaker/utils/duration_parser.dart';
 import 'package:tuple/tuple.dart';
 
-class FileProcessor extends ChangeNotifier {
+class FileProcessor {
   static int outputId = 0;
   static List<File> filesToRemove = List<File>();
 
@@ -41,7 +40,7 @@ class FileProcessor extends ChangeNotifier {
   Future<File> trim(
       File file, Duration startingPoint, Duration endingPoint) async {
     if (!file.existsSync() || !isTimePeriodValid(startingPoint, endingPoint)) {
-      return null;
+      throw InvalidFileException();
     }
 
     File trimmedFile;
@@ -68,13 +67,13 @@ class FileProcessor extends ChangeNotifier {
 
       return trimmedFile;
     } else {
-      return null;
+      throw UnknownException();
     }
   }
 
   Future<Duration> getDuration(File file) async {
     if (!file.existsSync()) {
-      return null;
+      throw InvalidFileException();
     }
 
     Map info = await flutterFFprobe.getMediaInformation(file.path);
@@ -82,7 +81,7 @@ class FileProcessor extends ChangeNotifier {
     if (info != null) {
       return Duration(milliseconds: info['duration']);
     } else {
-      return null;
+      throw UnknownException();
     }
   }
 
@@ -91,7 +90,6 @@ class FileProcessor extends ChangeNotifier {
       file.deleteSync();
     }
 
-    print('Cleaned files!');
     filesToRemove.clear();
   }
 
@@ -149,7 +147,7 @@ class FileProcessor extends ChangeNotifier {
   Future<double> getAvgVolume(
       File file, Duration startingPoint, Duration endingPoint) async {
     if (!file.existsSync()) {
-      return null;
+      throw InvalidFileException();
     }
 
     flutterFFmpegConfig.enableLogCallback(this.logCallback);
@@ -164,13 +162,13 @@ class FileProcessor extends ChangeNotifier {
     if (rc == 0) {
       return meanVolume;
     } else {
-      return null;
+      throw UnknownException();
     }
   }
 
   Future<double> getMaxVolume(File file) async {
     if (!file.existsSync()) {
-      return null;
+      throw InvalidFileException();
     }
 
     flutterFFmpegConfig.enableLogCallback(this.logCallback);
@@ -185,14 +183,14 @@ class FileProcessor extends ChangeNotifier {
     if (rc == 0) {
       return maxVolume;
     } else {
-      return null;
+      throw UnknownException();
     }
   }
 
   Future<Tuple2<List<double>, List<Duration>>> getBestSceneScoresAndMoments(
       File video) async {
     if (!video.existsSync()) {
-      return null;
+      throw InvalidVideoFileException();
     }
 
     flutterFFmpegConfig.enableLogCallback(this.logCallback);
@@ -207,13 +205,13 @@ class FileProcessor extends ChangeNotifier {
     if (rc == 0) {
       return Tuple2(sceneScores, sceneMoments);
     } else {
-      return null;
+      throw UnknownException();
     }
   }
 
   Future<File> getBestMomentByAudio(File video, double samplingRate) async {
     if (video == null || await isSilent(video)) {
-      return null;
+      throw NoAudioException();
     }
 
     var chunks = List<ClipSample>();
@@ -249,7 +247,7 @@ class FileProcessor extends ChangeNotifier {
 
   Future<File> getBestMomentByScene(File video, double samplingRate) async {
     if (video == null) {
-      return null;
+      throw InvalidVideoFileException();
     }
 
     Duration duration = await getDuration(video);

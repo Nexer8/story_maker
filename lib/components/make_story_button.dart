@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:provider/provider.dart';
+import 'package:storymaker/components/error_handling_snackbar.dart';
 import 'package:storymaker/components/progress_dialog_window.dart';
 import 'package:storymaker/services/general_processor.dart';
 
@@ -16,27 +17,17 @@ class MakeStoryButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(50.0),
         child: MaterialButton(
           onPressed: () async {
-            print("Create story button has been pressed");
+            ProgressDialog progressDialog =
+                ProgressDialogWindow.getProgressDialog(
+                    context, 'Making a story');
+            await progressDialog.show();
 
-            if (generalStoryProcessor.isOperational()) {
-              print('General story processor is operational!');
-
-              ProgressDialog progressDialog =
-                  ProgressDialogWindow.getProgressDialog(
-                      context, 'Making a story');
-              progressDialog.show();
-
-              try {
-                await generalStoryProcessor.makeStory();
-              } catch (e) {
-                progressDialog.hide();
-              }
-
-              if (progressDialog.isShowing()) {
-                progressDialog.hide();
-              }
-            } else {
-              print('Not operational');
+            try {
+              await generalStoryProcessor.makeStory();
+            } catch (e) {
+              ErrorHandlingSnackbar.show(e, context);
+            } finally {
+              await progressDialog.hide();
             }
           },
           child: Container(

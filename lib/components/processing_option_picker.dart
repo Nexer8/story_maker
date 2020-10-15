@@ -48,7 +48,6 @@ class _ProcessingOptionPickerState extends State<ProcessingOptionPicker> {
                 setState(() {
                   _value = value;
                   generalStoryProcessor.processingType = value;
-                  print(generalStoryProcessor.processingType);
                 });
               },
             ),
@@ -70,7 +69,6 @@ class _ProcessingOptionPickerState extends State<ProcessingOptionPicker> {
                 setState(() {
                   _value = value;
                   generalStoryProcessor.processingType = value;
-                  print(generalStoryProcessor.processingType);
                 });
               },
             ),

@@ -57,7 +57,6 @@ class VideoState extends State<MyVideoPlayer> {
                                 box.localToGlobal(Offset.zero) & box.size);
                         // GallerySaver.saveVideo(
                         //     generalStoryProcessor.processedClip.path);
-                        print('Share');
                       },
                     ),
                   ],
