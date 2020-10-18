@@ -39,7 +39,10 @@ class AudioLoaderButton extends StatelessWidget {
               generalStoryProcessor.loadAudio(audio);
             }
           },
-          child: Icon(Icons.audiotrack, color: kOnSecondaryColor,),
+          child: Icon(
+            Icons.audiotrack,
+            color: kOnSecondaryColor,
+          ),
         ),
       ),
     );
