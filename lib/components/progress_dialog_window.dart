@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:progress_dialog/progress_dialog.dart';
+import 'package:storymaker/utils/constants/colors.dart';
 
 class ProgressDialogWindow {
   static ProgressDialog getProgressDialog(
@@ -15,14 +16,14 @@ class ProgressDialogWindow {
     progressDialog.style(
       message: message,
       borderRadius: 10.0,
-      backgroundColor: Colors.white,
+      backgroundColor: kPrimaryColor,
       elevation: 10.0,
       insetAnimCurve: Curves.easeInOut,
       progressWidgetAlignment: Alignment.center,
       progressTextStyle: TextStyle(
-          color: Colors.black, fontSize: 13.0, fontWeight: FontWeight.w400),
+          color: kOnPrimaryColor, fontSize: 13.0, fontWeight: FontWeight.w500),
       messageTextStyle: TextStyle(
-          color: Colors.black, fontSize: 19.0, fontWeight: FontWeight.w600),
+          color: kOnPrimaryColor, fontSize: 19.0, fontWeight: FontWeight.w500),
     );
 
     return progressDialog;

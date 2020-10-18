@@ -23,6 +23,14 @@ class GeneralStoryProcessor extends ChangeNotifier {
 
   GeneralStoryProcessor(this._audioProcessor, this._videoProcessor);
 
+  int getNumberOfVideos() {
+    if (_videoProcessor.videos != null) {
+      return _videoProcessor.videos.length;
+    } else {
+      return 0;
+    }
+  }
+
   void loadVideos(List<File> videos) {
     _videoProcessor.videos = videos;
   }

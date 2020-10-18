@@ -1,9 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:neeko/neeko.dart';
 import 'package:provider/provider.dart';
-import 'package:share/share.dart';
+import 'package:storymaker/components/save_video_icon_button.dart';
+import 'package:storymaker/components/share_video_icon_button.dart';
 import 'package:storymaker/services/general_processor.dart';
 
 class MyVideoPlayer extends StatefulWidget {
@@ -35,33 +37,35 @@ class VideoState extends State<MyVideoPlayer> {
         Expanded(
           child: Container(),
         ),
-        generalStoryProcessor.processedClip == null
-            ? Container()
-            : Container(
-                child: NeekoPlayerWidget(
-                  videoControllerWrapper: videoControllerWrapper =
-                      VideoControllerWrapper(
-                          DataSource.file(generalStoryProcessor.processedClip)),
-                  actions: <Widget>[
-                    IconButton(
-                      icon: Icon(
-                        Icons.share,
-                        color: Colors.white,
-                      ),
-                      onPressed: () async {
-                        final RenderBox box = context.findRenderObject();
-
-                        await Share.shareFiles(
-                            [generalStoryProcessor.processedClip.path],
-                            sharePositionOrigin:
-                                box.localToGlobal(Offset.zero) & box.size);
-                        // GallerySaver.saveVideo(
-                        //     generalStoryProcessor.processedClip.path);
-                      },
-                    ),
-                  ],
-                ),
+        if (generalStoryProcessor.processedClip == null)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15.0),
+            child: Container(
+              child: Image.asset(
+                'assets/images/logo.png',
+                width: 180,
               ),
+              // child: SvgPicture.asset(
+              //   'assets/images/logo.svg',
+              //   matchTextDirection: true,
+              //   width: 180,
+              // ),
+            ),
+          )
+        else
+          Container(
+            child: NeekoPlayerWidget(
+              videoControllerWrapper: videoControllerWrapper =
+                  VideoControllerWrapper(
+                      DataSource.file(generalStoryProcessor.processedClip)),
+              actions: <Widget>[
+                SaveVideoIconButton(
+                    videoToSave: generalStoryProcessor.processedClip),
+                ShareVideoIconButton(
+                    videoToShare: generalStoryProcessor.processedClip),
+              ],
+            ),
+          ),
         Expanded(
           child: Container(),
         ),
