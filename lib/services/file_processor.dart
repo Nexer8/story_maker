@@ -47,7 +47,7 @@ class FileProcessor {
     String mimeType = lookupMimeType(file.path);
     String extension;
 
-    if (mimeType.contains('audio')) {
+    if (mimeType == null || mimeType.contains('audio')) {
       extension = '.mp3';
     } else if (mimeType.contains('video')) {
       extension = '.mp4';
@@ -56,7 +56,8 @@ class FileProcessor {
     final String outputPath =
         rawDocumentPath + "/trimmed${outputId++}" + extension;
     String commandToExecute =
-        "-y -i ${file.path} -ss ${startingPoint.toString()} -to ${endingPoint.toString()} -c copy $outputPath";
+        "-y -i '${file.path}' -ss ${startingPoint.toString()} -to "
+        "${endingPoint.toString()} -c copy $outputPath";
 
     int rc = await flutterFFmpeg.execute(commandToExecute);
 
@@ -95,14 +96,14 @@ class FileProcessor {
 
   Future<File> extractAudioFromVideo(File video) async {
     if (!video.existsSync()) {
-      return null;
+      throw InvalidFileException();
     }
 
     File extractedAudio;
     final String outputPath =
         rawDocumentPath + "/extractedAudio${outputId++}.mp3";
     final String commandToExecute =
-        "-y -i ${video.path} -q:a 0 -map a $outputPath";
+        "-y -i '${video.path}' -codec:a libmp3lame -qscale:a 2 $outputPath";
 
     int rc = await flutterFFmpeg.execute(commandToExecute);
 
@@ -112,7 +113,7 @@ class FileProcessor {
 
       return extractedAudio;
     } else {
-      return null;
+      throw UnknownException();
     }
   }
 
@@ -153,7 +154,8 @@ class FileProcessor {
     flutterFFmpegConfig.enableLogCallback(this.logCallback);
 
     final String commandToExecute =
-        "-y -ss ${startingPoint.toString()} -to ${endingPoint.toString()} -i ${file.path} -af 'volumedetect' -vn -sn -dn -f null /dev/null";
+        "-y -ss ${startingPoint.toString()} -to ${endingPoint.toString()} "
+        "-i '${file.path}' -af 'volumedetect' -vn -sn -dn -f null /dev/null";
 
     int rc = await flutterFFmpeg.execute(commandToExecute);
 
@@ -174,7 +176,7 @@ class FileProcessor {
     flutterFFmpegConfig.enableLogCallback(this.logCallback);
 
     final String commandToExecute =
-        "-y -i ${file.path} -af 'volumedetect' -vn -sn -dn -f null /dev/null";
+        "-y -i '${file.path}' -af 'volumedetect' -vn -sn -dn -f null /dev/null";
 
     int rc = await flutterFFmpeg.execute(commandToExecute);
 
@@ -196,7 +198,8 @@ class FileProcessor {
     flutterFFmpegConfig.enableLogCallback(this.logCallback);
 
     final String commandToExecute =
-        "-y -i ${video.path} -vf \"select = 'gte(scene,0)',metadata=print\" -f null /dev/null";
+        "-y -i '${video.path}' -vf \"select = 'gte(scene,0)',metadata=print\""
+        " -f null /dev/null";
 
     int rc = await flutterFFmpeg.execute(commandToExecute);
 

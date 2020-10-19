@@ -33,8 +33,9 @@ class VideoProcessor extends FileProcessor {
     final String outputPath =
         rawDocumentPath + "/joined${FileProcessor.outputId++}.mp4";
     final String commandToExecute =
-        "-y -i ${firstVideo.path} -i ${secondVideo.path} -filter_complex '[0:0][1:0]concat=n=2:v=1:a=0[out]' -r ntsc-film -map '[out]' " +
-            outputPath;
+        "-y -i '${firstVideo.path}' -i '${secondVideo.path}' -filter_complex "
+        "'[0:v][0:a][1:v][1:a]concat=n=2:v=1:a=1[v][a]' -r ntsc-film -map "
+        "'[v]' -map '[a]' $outputPath";
 
     int rc = await flutterFFmpeg.execute(commandToExecute);
 

@@ -7,6 +7,7 @@ import 'package:storymaker/components/video_length_slider.dart';
 import 'package:storymaker/components/processing_option_radio.dart';
 import 'package:storymaker/components/video_loader_button.dart';
 import 'package:storymaker/components/video_player.dart';
+import 'package:storymaker/utils/constants/colors.dart';
 import 'package:storymaker/utils/constants/screen_ids.dart';
 
 class MainScreen extends StatelessWidget {
@@ -16,25 +17,34 @@ class MainScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Column(
-          children: <Widget>[
-            MyVideoPlayer(),
-            SizedBox(
-              height: 10.0,
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [kPrimaryDarkColor, kPrimaryColor],
+              begin: Alignment.bottomLeft,
+              end: Alignment.topRight,
             ),
-            ProcessingOptionPicker(),
-            VideoLengthSlider(),
-            Container(
-              height: 100.0,
-              child: Row(
-                children: <Widget>[
-                  VideoLoaderButton(),
-                  AudioLoaderButton(),
-                ],
+          ),
+          child: Column(
+            children: <Widget>[
+              MyVideoPlayer(),
+              SizedBox(
+                height: 10.0,
               ),
-            ),
-            MakeStoryButton(),
-          ],
+              ProcessingOptionPicker(),
+              VideoLengthSlider(),
+              Container(
+                height: 100.0,
+                child: Row(
+                  children: <Widget>[
+                    VideoLoaderButton(),
+                    AudioLoaderButton(),
+                  ],
+                ),
+              ),
+              MakeStoryButton(),
+            ],
+          ),
         ),
       ),
     );
