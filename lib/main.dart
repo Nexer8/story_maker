@@ -11,7 +11,9 @@ import 'package:storymaker/screens/main_screen.dart';
 import 'package:storymaker/services/audio_processor.dart';
 import 'package:storymaker/services/general_processor.dart';
 import 'package:storymaker/services/service_locator.dart';
+import 'package:storymaker/services/ui_data_provider.dart';
 import 'package:storymaker/services/video_processor.dart';
+import 'package:storymaker/utils/constants/colors.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -47,11 +49,14 @@ class StoryMaker extends StatelessWidget {
                 rawDocumentPath: rawDocumentPath),
           ),
         ),
+        ChangeNotifierProvider.value(
+          value: UIDataProvider(),
+        ),
       ],
       child: MaterialApp(
         theme: ThemeData(
           brightness: Brightness.dark,
-          // scaffoldBackgroundColor: kPrimaryDarkColor,
+          scaffoldBackgroundColor: kPrimaryDarkColor,
           fontFamily: 'Montserrat',
           buttonTheme: ButtonThemeData(
             padding: const EdgeInsets.all(10.0),

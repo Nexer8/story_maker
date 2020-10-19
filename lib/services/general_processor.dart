@@ -31,6 +31,8 @@ class GeneralStoryProcessor extends ChangeNotifier {
     }
   }
 
+  bool isOperational() => _videoProcessor.videos != null;
+
   bool isAudioLoaded() => _audioProcessor.audio != null;
 
   void loadVideos(List<File> videos) {
@@ -40,8 +42,6 @@ class GeneralStoryProcessor extends ChangeNotifier {
   void loadAudio(File audio) {
     _audioProcessor.audio = audio;
   }
-
-  bool isOperational() => _videoProcessor.videos != null;
 
   bool isFinalVideoCreated() =>
       _videoProcessor.finalVideo != null &&

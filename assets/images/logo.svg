@@ -6,6 +6,7 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="107.60535mm"
@@ -44,22 +45,22 @@
   </defs>
   <sodipodi:namedview
      id="base"
-     pagecolor="#333333"
+     pagecolor="#0b222c"
      bordercolor="#666666"
      borderopacity="1.0"
-     inkscape:pageopacity="0"
+     inkscape:pageopacity="1"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.98994949"
-     inkscape:cx="253.24722"
-     inkscape:cy="351.28898"
+     inkscape:zoom="1.4"
+     inkscape:cx="123.66966"
+     inkscape:cy="220.22566"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      inkscape:document-rotation="0"
      showgrid="false"
-     inkscape:window-width="1920"
-     inkscape:window-height="1050"
-     inkscape:window-x="3840"
-     inkscape:window-y="0"
+     inkscape:window-width="2400"
+     inkscape:window-height="1271"
+     inkscape:window-x="2391"
+     inkscape:window-y="-9"
      inkscape:window-maximized="1" />
   <metadata
      id="metadata5">
@@ -83,7 +84,9 @@
        id="path10"
        cx="106.12323"
        cy="99.404007"
-       r="52.470173" />
+       r="52.470173"
+       inkscape:export-xdpi="241.71289"
+       inkscape:export-ydpi="241.71289" />
     <g
        id="g2897"
        transform="matrix(0.86975213,0,0,0.83018097,72.433062,67.47488)"
@@ -91,72 +94,58 @@
       <g
          id="_x37_7_Essential_Icons_72_"
          style="stroke-width:1.0002;stroke-miterlimit:4;stroke-dasharray:none;fill:#ffffff;fill-opacity:1">
-	<path
-   id="Video_Camera"
-   d="m 73.635367,14.4 -16.9,10.9 V 22 c 0,-4.4 -3.6,-8 -8,-8 H 8.7353673 c -4.4,0 -8.00000003,3.6 -8.00000003,8 v 32 c 0,4.4 3.60000003,8 8.00000003,8 H 48.735367 c 4.4,0 8,-3.6 8,-8 v -3.3 l 16.9,10.9 c 1.9,1 3.1,-0.7 3.1,-1.7 V 16 c 0,-1 -1.1,-2.8 -3.1,-1.6 z m -20.9,39.6 c 0,2.2 -1.8,4 -4,4 H 8.7353673 c -2.2,0 -4,-1.8 -4,-4 V 22 c 0,-2.2 1.8,-4 4,-4 H 48.735367 c 2.2,0 4,1.8 4,4 z m 20,2.3 -16,-10.3 V 30 l 16,-10.3 z"
-   style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1.0002;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-
-</g>
+        <path
+           id="Video_Camera"
+           d="m 73.635367,14.4 -16.9,10.9 V 22 c 0,-4.4 -3.6,-8 -8,-8 H 8.7353673 c -4.4,0 -8.00000003,3.6 -8.00000003,8 v 32 c 0,4.4 3.60000003,8 8.00000003,8 H 48.735367 c 4.4,0 8,-3.6 8,-8 v -3.3 l 16.9,10.9 c 1.9,1 3.1,-0.7 3.1,-1.7 V 16 c 0,-1 -1.1,-2.8 -3.1,-1.6 z m -20.9,39.6 c 0,2.2 -1.8,4 -4,4 H 8.7353673 c -2.2,0 -4,-1.8 -4,-4 V 22 c 0,-2.2 1.8,-4 4,-4 H 48.735367 c 2.2,0 4,1.8 4,4 z m 20,2.3 -16,-10.3 V 30 l 16,-10.3 z"
+           style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1.0002;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           inkscape:export-xdpi="241.71289"
+           inkscape:export-ydpi="241.71289" />
+      </g>
       <g
          id="g2843"
-         style="stroke-width:1.0002;stroke-miterlimit:4;stroke-dasharray:none;fill:#ffffff;fill-opacity:1">
-</g>
+         style="stroke-width:1.0002;stroke-miterlimit:4;stroke-dasharray:none;fill:#ffffff;fill-opacity:1" />
       <g
          id="g2845"
-         style="stroke-width:1.0002;stroke-miterlimit:4;stroke-dasharray:none;fill:#ffffff;fill-opacity:1">
-</g>
+         style="stroke-width:1.0002;stroke-miterlimit:4;stroke-dasharray:none;fill:#ffffff;fill-opacity:1" />
       <g
          id="g2847"
-         style="stroke-width:1.0002;stroke-miterlimit:4;stroke-dasharray:none;fill:#ffffff;fill-opacity:1">
-</g>
+         style="stroke-width:1.0002;stroke-miterlimit:4;stroke-dasharray:none;fill:#ffffff;fill-opacity:1" />
       <g
          id="g2849"
-         style="stroke-width:1.0002;stroke-miterlimit:4;stroke-dasharray:none;fill:#ffffff;fill-opacity:1">
-</g>
+         style="stroke-width:1.0002;stroke-miterlimit:4;stroke-dasharray:none;fill:#ffffff;fill-opacity:1" />
       <g
          id="g2851"
-         style="stroke-width:1.0002;stroke-miterlimit:4;stroke-dasharray:none;fill:#ffffff;fill-opacity:1">
-</g>
+         style="stroke-width:1.0002;stroke-miterlimit:4;stroke-dasharray:none;fill:#ffffff;fill-opacity:1" />
       <g
          id="g2853"
-         style="stroke-width:1.0002;stroke-miterlimit:4;stroke-dasharray:none;fill:#ffffff;fill-opacity:1">
-</g>
+         style="stroke-width:1.0002;stroke-miterlimit:4;stroke-dasharray:none;fill:#ffffff;fill-opacity:1" />
       <g
          id="g2855"
-         style="stroke-width:1.0002;stroke-miterlimit:4;stroke-dasharray:none;fill:#ffffff;fill-opacity:1">
-</g>
+         style="stroke-width:1.0002;stroke-miterlimit:4;stroke-dasharray:none;fill:#ffffff;fill-opacity:1" />
       <g
          id="g2857"
-         style="stroke-width:1.0002;stroke-miterlimit:4;stroke-dasharray:none;fill:#ffffff;fill-opacity:1">
-</g>
+         style="stroke-width:1.0002;stroke-miterlimit:4;stroke-dasharray:none;fill:#ffffff;fill-opacity:1" />
       <g
          id="g2859"
-         style="stroke-width:1.0002;stroke-miterlimit:4;stroke-dasharray:none;fill:#ffffff;fill-opacity:1">
-</g>
+         style="stroke-width:1.0002;stroke-miterlimit:4;stroke-dasharray:none;fill:#ffffff;fill-opacity:1" />
       <g
          id="g2861"
-         style="stroke-width:1.0002;stroke-miterlimit:4;stroke-dasharray:none;fill:#ffffff;fill-opacity:1">
-</g>
+         style="stroke-width:1.0002;stroke-miterlimit:4;stroke-dasharray:none;fill:#ffffff;fill-opacity:1" />
       <g
          id="g2863"
-         style="stroke-width:1.0002;stroke-miterlimit:4;stroke-dasharray:none;fill:#ffffff;fill-opacity:1">
-</g>
+         style="stroke-width:1.0002;stroke-miterlimit:4;stroke-dasharray:none;fill:#ffffff;fill-opacity:1" />
       <g
          id="g2865"
-         style="stroke-width:1.0002;stroke-miterlimit:4;stroke-dasharray:none;fill:#ffffff;fill-opacity:1">
-</g>
+         style="stroke-width:1.0002;stroke-miterlimit:4;stroke-dasharray:none;fill:#ffffff;fill-opacity:1" />
       <g
          id="g2867"
-         style="stroke-width:1.0002;stroke-miterlimit:4;stroke-dasharray:none;fill:#ffffff;fill-opacity:1">
-</g>
+         style="stroke-width:1.0002;stroke-miterlimit:4;stroke-dasharray:none;fill:#ffffff;fill-opacity:1" />
       <g
          id="g2869"
-         style="stroke-width:1.0002;stroke-miterlimit:4;stroke-dasharray:none;fill:#ffffff;fill-opacity:1">
-</g>
+         style="stroke-width:1.0002;stroke-miterlimit:4;stroke-dasharray:none;fill:#ffffff;fill-opacity:1" />
       <g
          id="g2871"
-         style="stroke-width:1.0002;stroke-miterlimit:4;stroke-dasharray:none;fill:#ffffff;fill-opacity:1">
-</g>
+         style="stroke-width:1.0002;stroke-miterlimit:4;stroke-dasharray:none;fill:#ffffff;fill-opacity:1" />
     </g>
     <text
        xml:space="preserve"
@@ -185,5 +174,22 @@
          x="109.77448"
          y="213.03415"
          style="font-style:italic;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:14.1111px;font-family:Montserrat;-inkscape-font-specification:'Montserrat, Bold Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;text-anchor:middle;fill:#c17b00;fill-opacity:1;stroke-width:0.264583;stroke:none;stroke-opacity:1;">Maker</tspan></text>
+    <image
+       width="28.310417"
+       height="39.6875"
+       preserveAspectRatio="none"
+       style="image-rendering:optimizeSpeed"
+       xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGsAAACWCAYAAADZs3bLAAAABHNCSVQICAgIfAhkiAAAAXRJREFU
+eJzt0UENwCAAwECYFL7418cs8CNN7hQ06Rxrn0HC9zqAe2aFmBViVohZIWaFmBViVohZIWaFmBVi
+VohZIWaFmBViVohZIWaFmBViVohZIWaFmBViVohZIWaFmBViVohZIWaFmBViVohZIWaFmBViVohZ
+IWaFmBViVohZIWaFmBViVohZIWaFmBViVohZIWaFmBViVohZIWaFmBViVohZIWaFmBViVohZIWaF
+mBViVohZIWaFmBViVohZIWaFmBViVohZIWaFmBViVohZIWaFmBViVohZIWaFmBViVohZIWaFmBVi
+VohZIWaFmBViVohZIWaFmBViVohZIWaFmBViVohZIWaFmBViVohZIWaFmBViVohZIWaFmBViVohZ
+IWaFmBViVohZIWaFmBViVohZIWaFmBViVohZIWaFmBViVohZIWaFmBViVohZIWaFmBViVohZIWaF
+mBViVohZIWaFmBViVohZIWaFmBViVohZIT9ZXwJ4udCClwAAAABJRU5ErkJggg==
+"
+       id="image47"
+       x="173.13646"
+       y="64.912575" />
   </g>
 </svg>

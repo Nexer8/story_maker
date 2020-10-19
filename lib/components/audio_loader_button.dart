@@ -24,11 +24,13 @@ class _AudioLoaderButtonState extends State<AudioLoaderButton> {
         children: <Widget>[
           Container(
             padding: EdgeInsets.only(
-                left: 5.0, top: 10.0, right: 25.0, bottom: 10.0),
+                left: 7.5, top: 10.0, right: 25.0, bottom: 10.0),
             height: double.infinity,
             width: double.infinity,
             child: MaterialButton(
-              color: kSecondaryColor,
+              color: generalStoryProcessor.isAudioLoaded()
+                  ? kSecondaryColor
+                  : kSecondaryDarkColor,
               onPressed: () async {
                 File audio;
 
@@ -57,8 +59,8 @@ class _AudioLoaderButtonState extends State<AudioLoaderButton> {
           ),
           generalStoryProcessor.isAudioLoaded()
               ? Positioned(
-                  top: 0.0,
-                  right: 0.0,
+                  top: -10.0,
+                  right: -8.0,
                   child: MaterialButton(
                     onPressed: () {
                       setState(() {
@@ -66,9 +68,9 @@ class _AudioLoaderButtonState extends State<AudioLoaderButton> {
                       });
                     },
                     child: CircleAvatar(
-                      backgroundColor: kOnSecondaryColor,
+                      backgroundColor: kOnPrimaryColor,
                       child: Icon(
-                        Icons.check,
+                        Icons.clear,
                         color: kSecondaryColor,
                       ),
                     ),

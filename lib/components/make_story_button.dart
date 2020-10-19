@@ -5,19 +5,23 @@ import 'package:provider/provider.dart';
 import 'package:storymaker/components/error_handling_snackbar.dart';
 import 'package:storymaker/components/progress_dialog_window.dart';
 import 'package:storymaker/services/general_processor.dart';
+import 'package:storymaker/services/ui_data_provider.dart';
 import 'package:storymaker/utils/constants/colors.dart';
 
 class MakeStoryButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final generalStoryProcessor = Provider.of<GeneralStoryProcessor>(context);
+    final uiDataProvider = Provider.of<UIDataProvider>(context);
 
     return Container(
       padding: const EdgeInsets.only(
           left: 25.0, top: 5.0, right: 25.0, bottom: 15.0),
       height: 80.0,
       child: MaterialButton(
-        color: kSecondaryColor,
+        color: uiDataProvider.isGeneralProcessorOperational
+            ? kSecondaryColor
+            : kSecondaryDarkColor,
         onPressed: () async {
           ProgressDialog progressDialog =
               ProgressDialogWindow.getProgressDialog(context, 'Making a story');
