@@ -23,13 +23,15 @@ class GeneralStoryProcessor extends ChangeNotifier {
 
   GeneralStoryProcessor(this._audioProcessor, this._videoProcessor);
 
-  int getNumberOfVideos() {
+  int getNumberOfLoadedVideos() {
     if (_videoProcessor.videos != null) {
       return _videoProcessor.videos.length;
     } else {
       return 0;
     }
   }
+
+  bool isAudioLoaded() => _audioProcessor.audio != null;
 
   void loadVideos(List<File> videos) {
     _videoProcessor.videos = videos;
@@ -69,10 +71,11 @@ class GeneralStoryProcessor extends ChangeNotifier {
 
     cleanUp();
 
+    await _videoProcessor.createFinalVideo(finalDuration, processingType);
+
     if (_audioProcessor.audio != null) {
       await _audioProcessor.createFinalAudio(finalDuration);
     }
-    await _videoProcessor.createFinalVideo(finalDuration, processingType);
 
     if (areFinalAudioAndVideoCreated()) {
       processedClip = await joinAudioAndVideo(
@@ -135,12 +138,16 @@ class GeneralStoryProcessor extends ChangeNotifier {
       throw InvalidFileException();
     }
 
+    File extractedAudio = await _videoProcessor.extractAudioFromVideo(video);
+    File mergedAudio =
+        await _audioProcessor.mergeAudioFiles(audio, extractedAudio);
+
     File joinedVideo;
     final String outputPath =
         _videoProcessor.rawDocumentPath + "/finalOutput.mp4";
 
     final String commandToExecute =
-        "-y -i ${video.path} -i ${audio.path} -c:v copy -c:a aac -map 0:v:0 -map 1:a:0 $outputPath";
+        "-y -i '${video.path}' -i '${mergedAudio.path}' -c:v copy -c:a aac -map 0:v:0 -map 1:a:0 $outputPath";
 
     int rc = await _videoProcessor.flutterFFmpeg.execute(commandToExecute);
 
