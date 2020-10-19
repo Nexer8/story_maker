@@ -28,6 +28,7 @@ jobs:
         channel: 'stable'
     # Get flutter packages
     - run: flutter pub get
+    - run: flutter build apk --profile
     # build Android version
     - run: flutter build apk --target-platform android-arm,android-arm64,android-x64 --split-per-abi
       # build iOS version
