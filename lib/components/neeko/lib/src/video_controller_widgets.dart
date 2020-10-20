@@ -13,8 +13,6 @@
 //
 //See the Mulan PSL v1 for more details.
 
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
@@ -27,7 +25,6 @@ class CenterControllerActionButtons extends StatefulWidget {
   final VideoControllerWrapper controllerWrapper;
   final ValueNotifier<bool> showControllers;
   final Widget bufferIndicator;
-  final bool isLive;
   final Function onSkipPrevious;
   final Function onSkipNext;
 
@@ -36,8 +33,7 @@ class CenterControllerActionButtons extends StatefulWidget {
       this.showControllers,
       this.bufferIndicator,
       this.onSkipPrevious,
-      this.onSkipNext,
-      this.isLive = false})
+      this.onSkipNext})
       : super(key: key);
 
   @override
@@ -135,15 +131,6 @@ class _CenterControllerActionButtonsState
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                if (!widget.isLive)
-                  IconButton(
-                    icon: Icon(
-                      Icons.skip_previous,
-                    ),
-                    color: Colors.white,
-                    onPressed: widget.onSkipPrevious,
-                    iconSize: iconSize,
-                  ),
                 InkWell(
                   borderRadius: BorderRadius.circular(50.0),
                   onTap: _play,
@@ -154,15 +141,6 @@ class _CenterControllerActionButtonsState
                     size: iconSize * 1.5,
                   ),
                 ),
-                if (!widget.isLive)
-                  IconButton(
-                    icon: Icon(
-                      Icons.skip_next,
-                    ),
-                    onPressed: widget.onSkipNext,
-                    color: Colors.white,
-                    iconSize: iconSize,
-                  ),
               ],
             ),
           ),
@@ -367,8 +345,6 @@ class _TopBarState extends State<TopBar> {
   }
 
   Widget _buildLeading(BuildContext context) {
-    final IconData back =
-        Platform.isIOS ? Icons.arrow_back_ios : Icons.arrow_back;
     final title = widget.controllerWrapper.dataSource.displayName;
     final subtitle = widget.controllerWrapper.dataSource.subtitle;
     final ThemeData themeData = Theme.of(context);
@@ -376,20 +352,6 @@ class _TopBarState extends State<TopBar> {
       alignment: Alignment.centerLeft,
       child: Row(
         children: <Widget>[
-          GestureDetector(
-            onTap: () {
-              if (widget.isFullscreen && widget.onLandscapeBackTap != null) {
-                widget.onLandscapeBackTap();
-              } else if (!widget.isFullscreen &&
-                  widget.onPortraitBackTap != null) {
-                widget.onPortraitBackTap();
-              }
-            },
-            child: Icon(
-              widget.isFullscreen ? Icons.keyboard_arrow_down : back,
-              color: Colors.white,
-            ),
-          ),
           SizedBox(
             width: 8,
           ),

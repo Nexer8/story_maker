@@ -201,6 +201,10 @@ class _NeekoPlayerWidgetState extends State<NeekoPlayerWidget> {
         secondaryAnimation: secondaryAnimation,
         videoControllerWrapper: widget.videoControllerWrapper,
         actions: widget.actions,
+        progressBarBackgroundColor: widget.progressBarBackgroundColor,
+        progressBarHandleColor: widget.progressBarHandleColor,
+        progressBarBufferedColor: widget.progressBarBufferedColor,
+        progressBarPlayedColor: widget.progressBarPlayedColor,
         aspectRatio: widget.aspectRatio,
         bufferIndicator: widget.bufferIndicator,
         onSkipPrevious: widget.onSkipPrevious,
@@ -211,7 +215,6 @@ class _NeekoPlayerWidgetState extends State<NeekoPlayerWidget> {
             showFullScreenButton: widget.playerOptions.showFullScreenButton,
             autoPlay: true,
             useController: widget.playerOptions.useController,
-            isLive: widget.playerOptions.isLive,
             preferredOrientationsWhenEnterLandscape:
                 widget.playerOptions.preferredOrientationsWhenEnterLandscape,
             preferredOrientationsWhenExitLandscape:
@@ -255,7 +258,7 @@ class _NeekoPlayerWidgetState extends State<NeekoPlayerWidget> {
             children: <Widget>[
               SizedBox.expand(
                 child: FittedBox(
-                  fit: BoxFit.scaleDown,
+                  fit: BoxFit.contain,
                   child: SizedBox(
                     width:
                         videoControllerWrapper.controller?.value?.size?.width ??
@@ -279,7 +282,6 @@ class _NeekoPlayerWidgetState extends State<NeekoPlayerWidget> {
                   child: CenterControllerActionButtons(
                     videoControllerWrapper,
                     showControllers: _showControllers,
-                    isLive: widget.playerOptions.isLive,
                     onSkipPrevious: widget.onSkipPrevious,
                     onSkipNext: widget.onSkipNext,
                     bufferIndicator: widget.bufferIndicator ??
