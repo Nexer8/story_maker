@@ -35,6 +35,10 @@ Widget fullScreenRoutePageBuilder(
     Widget bufferIndicator,
     Color liveUIColor,
     List<Widget> actions,
+    Color progressBarPlayedColor,
+    Color progressBarBufferedColor,
+    Color progressBarHandleColor,
+    Color progressBarBackgroundColor,
     Duration startAt,
     Function onSkipPrevious,
     Function onSkipNext,
@@ -47,6 +51,10 @@ Widget fullScreenRoutePageBuilder(
     bufferIndicator: bufferIndicator,
     liveUIColor: liveUIColor,
     actions: actions,
+    progressBarPlayedColor: progressBarPlayedColor,
+    progressBarBufferedColor: progressBarBufferedColor,
+    progressBarHandleColor: progressBarHandleColor,
+    progressBarBackgroundColor: progressBarBackgroundColor,
     startAt: startAt,
     inFullScreen: true,
     playerOptions: playerOptions,
@@ -135,8 +143,13 @@ class __FullscreenPlayerState extends State<_FullscreenPlayer> {
     super.initState();
     SystemChrome.setEnabledSystemUIOverlays(
         widget.playerOptions.enabledSystemUIOverlaysWhenEnterLandscape);
-    SystemChrome.setPreferredOrientations(
-        widget.playerOptions.preferredOrientationsWhenEnterLandscape);
+
+    if (widget.videoControllerWrapper.controller.value.size.width >
+        widget.videoControllerWrapper.controller.value.size.height) {
+      print(widget.aspectRatio);
+      SystemChrome.setPreferredOrientations(
+          widget.playerOptions.preferredOrientationsWhenEnterLandscape);
+    }
 
     _showControllers.addListener(() {
       _timer?.cancel();
@@ -168,98 +181,95 @@ class __FullscreenPlayerState extends State<_FullscreenPlayer> {
           child: Hero(
             tag: this.widget.tag,
             child: Container(
-              child: AspectRatio(
-                aspectRatio: widget.aspectRatio,
-                child: Stack(
-                  fit: StackFit.expand,
-                  overflow: Overflow.visible,
-                  children: <Widget>[
-                    SizedBox.expand(
-                      child: FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: SizedBox(
-                          width: videoControllerWrapper
-                                  .controller?.value?.size?.width ??
-                              0,
-                          height: videoControllerWrapper
-                                  .controller?.value?.size?.height ??
-                              0,
-                          child: NeekoPlayer(
-                              controllerWrapper: videoControllerWrapper),
-                        ),
+              child: Stack(
+                fit: StackFit.expand,
+                overflow: Overflow.visible,
+                children: <Widget>[
+                  SizedBox.expand(
+                    child: FittedBox(
+                      fit: BoxFit.contain,
+                      child: SizedBox(
+                        width: videoControllerWrapper
+                                .controller?.value?.size?.width ??
+                            0,
+                        height: videoControllerWrapper
+                                .controller?.value?.size?.height ??
+                            0,
+                        child: NeekoPlayer(
+                            controllerWrapper: videoControllerWrapper),
                       ),
                     ),
-                    if (widget.playerOptions.useController)
-                      TouchShutter(
+                  ),
+                  if (widget.playerOptions.useController)
+                    TouchShutter(
+                      videoControllerWrapper,
+                      showControllers: _showControllers,
+                      enableDragSeek: widget.playerOptions.enableDragSeek,
+                    ),
+                  if (widget.playerOptions.useController)
+                    Center(
+                      child: CenterControllerActionButtons(
                         videoControllerWrapper,
                         showControllers: _showControllers,
-                        enableDragSeek: widget.playerOptions.enableDragSeek,
-                      ),
-                    if (widget.playerOptions.useController)
-                      Center(
-                        child: CenterControllerActionButtons(
-                          videoControllerWrapper,
-                          showControllers: _showControllers,
-                          onSkipPrevious: widget.onSkipPrevious,
-                          onSkipNext: widget.onSkipNext,
-                          bufferIndicator: widget.bufferIndicator ??
-                              Container(
-                                width: 70.0,
-                                height: 70.0,
-                                child: CircularProgressIndicator(
-                                  valueColor:
-                                      AlwaysStoppedAnimation(Colors.white),
-                                ),
+                        onSkipPrevious: widget.onSkipPrevious,
+                        onSkipNext: widget.onSkipNext,
+                        bufferIndicator: widget.bufferIndicator ??
+                            Container(
+                              width: 70.0,
+                              height: 70.0,
+                              child: CircularProgressIndicator(
+                                valueColor:
+                                    AlwaysStoppedAnimation(Colors.white),
                               ),
-                        ),
+                            ),
                       ),
-                    if (widget.playerOptions.useController)
-                      Positioned(
-                          left: 0,
-                          right: 0,
-                          top: 0,
-                          child: TopBar(
-                            videoControllerWrapper,
-                            showControllers: _showControllers,
-                            options: widget.playerOptions,
-                            actions: widget.actions,
-                            isFullscreen: true,
-                            onLandscapeBackTap: _pop,
-                          )),
-                    if (widget.playerOptions.useController)
-                      Positioned(
-                        bottom: 0,
+                    ),
+                  if (widget.playerOptions.useController)
+                    Positioned(
                         left: 0,
                         right: 0,
-                        child: widget.playerOptions.isLive
-                            ? LiveBottomBar(
-                                videoControllerWrapper,
-                                aspectRatio: widget.aspectRatio,
-                                liveUIColor: widget.liveUIColor,
-                                showControllers: _showControllers,
-                                playedColor: widget.progressBarPlayedColor,
-                                handleColor: widget.progressBarHandleColor,
-                                backgroundColor:
-                                    widget.progressBarBackgroundColor,
-                                bufferedColor: widget.progressBarBufferedColor,
-                                isFullscreen: true,
-                                onExitFullscreen: _pop,
-                              )
-                            : BottomBar(
-                                videoControllerWrapper,
-                                aspectRatio: widget.aspectRatio,
-                                showControllers: _showControllers,
-                                playedColor: widget.progressBarPlayedColor,
-                                handleColor: widget.progressBarHandleColor,
-                                backgroundColor:
-                                    widget.progressBarBackgroundColor,
-                                bufferedColor: widget.progressBarBufferedColor,
-                                isFullscreen: true,
-                                onExitFullscreen: _pop,
-                              ),
-                      ),
-                  ],
-                ),
+                        top: 0,
+                        child: TopBar(
+                          videoControllerWrapper,
+                          showControllers: _showControllers,
+                          options: widget.playerOptions,
+                          actions: widget.actions,
+                          isFullscreen: true,
+                          onLandscapeBackTap: _pop,
+                        )),
+                  if (widget.playerOptions.useController)
+                    Positioned(
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      child: widget.playerOptions.isLive
+                          ? LiveBottomBar(
+                              videoControllerWrapper,
+                              aspectRatio: widget.aspectRatio,
+                              liveUIColor: widget.liveUIColor,
+                              showControllers: _showControllers,
+                              playedColor: widget.progressBarPlayedColor,
+                              handleColor: widget.progressBarHandleColor,
+                              backgroundColor:
+                                  widget.progressBarBackgroundColor,
+                              bufferedColor: widget.progressBarBufferedColor,
+                              isFullscreen: true,
+                              onExitFullscreen: _pop,
+                            )
+                          : BottomBar(
+                              videoControllerWrapper,
+                              aspectRatio: widget.aspectRatio,
+                              showControllers: _showControllers,
+                              playedColor: widget.progressBarPlayedColor,
+                              handleColor: widget.progressBarHandleColor,
+                              backgroundColor:
+                                  widget.progressBarBackgroundColor,
+                              bufferedColor: widget.progressBarBufferedColor,
+                              isFullscreen: true,
+                              onExitFullscreen: _pop,
+                            ),
+                    ),
+                ],
               ),
             ),
           ),

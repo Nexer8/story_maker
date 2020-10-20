@@ -6,6 +6,7 @@ import 'package:storymaker/components/neeko/lib/neeko.dart';
 import 'package:storymaker/components/save_video_icon_button.dart';
 import 'package:storymaker/components/share_video_icon_button.dart';
 import 'package:storymaker/services/general_processor.dart';
+import 'package:storymaker/utils/constants/colors.dart';
 
 class MyVideoPlayer extends StatelessWidget {
   @override
@@ -25,6 +26,10 @@ class MyVideoPlayer extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 15.0),
               child: NeekoPlayerWidget(
+                progressBarPlayedColor: kSecondaryColor,
+                progressBarBufferedColor: kSecondaryDarkColor,
+                progressBarBackgroundColor: kSecondaryDarkColor,
+                progressBarHandleColor: kOnPrimaryColor,
                 videoControllerWrapper: VideoControllerWrapper(
                   DataSource.file(generalStoryProcessor.processedClip),
                 ),
