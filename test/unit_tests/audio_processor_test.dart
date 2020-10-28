@@ -47,5 +47,20 @@ void main() {
         expect(audioProcessor.finalAudio.path, finalAudio.path);
       });
     });
+
+    group('AudioProcessor mergeAudioFiles', () {
+      test('ut_AudioProcessor_mergeAudioFiles_default', () async {
+        when(flutterFFmpegMock.execute(any))
+            .thenAnswer((_) async => Future<int>.value(0));
+
+        final regex = RegExp(r'^test_resources\/mergedAudio.\.mp3$');
+
+        expect(
+            regex.hasMatch(
+                (await audioProcessor.mergeAudioFiles(audioFile, audioFile))
+                    .path),
+            true);
+      });
+    });
   });
 }

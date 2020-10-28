@@ -26,6 +26,7 @@ void main() {
         flutterFFprobe: flutterFFprobeMock,
         flutterFFmpegConfig: flutterFFmpegConfigMock,
         rawDocumentPath: 'test_resources');
+
     final audioFile = File('test_resources/sample_audio.mp3');
     final videoFile = File('test_resources/sample_video.mp4');
     final audioDuration = Duration(seconds: 27);
@@ -77,6 +78,20 @@ void main() {
                 Future<Map>.value({'duration': videoDuration.inMilliseconds}));
 
         expect(await fileProcessor.getDuration(videoFile), videoDuration);
+      });
+    });
+
+    group('FileProcessor extractAudioFromVideo', () {
+      test('ut_FileProcessor_extractAudioFromVideo_default', () async {
+        when(flutterFFmpegMock.execute(any))
+            .thenAnswer((_) async => Future<int>.value(0));
+
+        final regex = RegExp(r'^test_resources\/extractedAudio.\.mp3$');
+
+        expect(
+            regex.hasMatch(
+                (await fileProcessor.extractAudioFromVideo(videoFile)).path),
+            true);
       });
     });
 

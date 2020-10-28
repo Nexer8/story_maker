@@ -4,7 +4,7 @@ import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 import 'package:mime/mime.dart';
 import 'package:storymaker/utils/constants/custom_exceptions.dart';
 import 'package:storymaker/utils/constants/general_processing_values.dart';
-import 'package:storymaker/services/clip_sample.dart';
+import 'file:///C:/Users/mariu/StudioProjects/story_maker/lib/models/clip_sample.dart';
 import 'package:storymaker/utils/duration_parser.dart';
 import 'package:tuple/tuple.dart';
 
@@ -88,7 +88,9 @@ class FileProcessor {
 
   static void fileCleanup() {
     for (var file in filesToRemove) {
-      file.deleteSync();
+      if (file.existsSync()) {
+        file.deleteSync();
+      }
     }
 
     filesToRemove.clear();

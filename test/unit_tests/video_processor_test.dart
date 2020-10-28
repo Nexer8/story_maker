@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:storymaker/services/video_processing_data.dart';
+import 'package:storymaker/models/video_processing_data.dart';
 import 'package:storymaker/services/video_processor.dart';
 import 'package:storymaker/utils/constants/general_processing_values.dart';
 
