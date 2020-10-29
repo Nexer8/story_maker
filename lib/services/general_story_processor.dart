@@ -94,44 +94,44 @@ class GeneralStoryProcessor extends ChangeNotifier {
     FileProcessor.fileCleanup();
   }
 
-  Future<void> testFunction() async {
-    File sample = await _videoProcessor.getBestMomentByAudio(
-        _videoProcessor.videos.first, 10);
-
-    if (sample != null) {
-      print('Path: ${sample.path}');
-    }
-
-    print('\nPROCESSING VIDEOS!');
-    processedClip = await _videoProcessor.joinVideos(
-        _videoProcessor.videos.first, _videoProcessor.videos.last);
-    print('\nPROCESSED CLIP INFO: $processedClip');
-
-    print(
-        '\nJOINED VIDEOS DURATION: ${await _videoProcessor.getDuration(processedClip)}');
-
-    File trimmedVideo = await _videoProcessor.trim(
-        processedClip, Duration(seconds: 0), Duration(seconds: 1));
-    print(
-        '\nDURATION AFTER TRIM: ${await _videoProcessor.getDuration(trimmedVideo)}');
-
-    print('\nPROCESSING AUDIO!');
-    print(
-        '\nAUDIO DURATION: ${await _audioProcessor.getDuration(_audioProcessor.audio)}');
-    File trimmedAudio = await _audioProcessor.trim(
-        _audioProcessor.audio, Duration(seconds: 0), Duration(seconds: 1));
-    print(
-        '\nTRIMMED AUDIO DURATION: ${await _audioProcessor.getDuration(trimmedAudio)}');
-
-    File joinedFile = await joinAudioAndVideo(trimmedAudio, trimmedVideo);
-    print('\nJOINED FILE: ${joinedFile.path}');
-    print(
-        '\nJOINED FILE DURATION: ${await _videoProcessor.getDuration(joinedFile)}');
-
-    processedClip = joinedFile;
-
-    FileProcessor.fileCleanup();
-  }
+  // Future<void> testFunction() async {
+  //   File sample = await _videoProcessor.getBestMomentByAudio(
+  //       _videoProcessor.videos.first, 10);
+  //
+  //   if (sample != null) {
+  //     print('Path: ${sample.path}');
+  //   }
+  //
+  //   print('\nPROCESSING VIDEOS!');
+  //   processedClip = await _videoProcessor.joinVideos(
+  //       _videoProcessor.videos.first, _videoProcessor.videos.last);
+  //   print('\nPROCESSED CLIP INFO: $processedClip');
+  //
+  //   print(
+  //       '\nJOINED VIDEOS DURATION: ${await _videoProcessor.getDuration(processedClip)}');
+  //
+  //   File trimmedVideo = await _videoProcessor.trim(
+  //       processedClip, Duration(seconds: 0), Duration(seconds: 1));
+  //   print(
+  //       '\nDURATION AFTER TRIM: ${await _videoProcessor.getDuration(trimmedVideo)}');
+  //
+  //   print('\nPROCESSING AUDIO!');
+  //   print(
+  //       '\nAUDIO DURATION: ${await _audioProcessor.getDuration(_audioProcessor.audio)}');
+  //   File trimmedAudio = await _audioProcessor.trim(
+  //       _audioProcessor.audio, Duration(seconds: 0), Duration(seconds: 1));
+  //   print(
+  //       '\nTRIMMED AUDIO DURATION: ${await _audioProcessor.getDuration(trimmedAudio)}');
+  //
+  //   File joinedFile = await joinAudioAndVideo(trimmedAudio, trimmedVideo);
+  //   print('\nJOINED FILE: ${joinedFile.path}');
+  //   print(
+  //       '\nJOINED FILE DURATION: ${await _videoProcessor.getDuration(joinedFile)}');
+  //
+  //   processedClip = joinedFile;
+  //
+  //   FileProcessor.fileCleanup();
+  // }
 
   Future<File> joinAudioAndVideo(File audio, File video) async {
     if (!audio.existsSync() || !video.existsSync()) {

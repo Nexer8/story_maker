@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:storymaker/services/general_processor.dart';
+import 'package:storymaker/services/general_story_processor.dart';
 import 'package:storymaker/utils/constants/colors.dart';
 import 'package:storymaker/utils/constants/general_processing_values.dart';
 

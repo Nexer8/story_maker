@@ -9,7 +9,7 @@ import 'package:provider/provider.dart';
 
 import 'package:storymaker/screens/main_screen.dart';
 import 'package:storymaker/services/audio_processor.dart';
-import 'package:storymaker/services/general_processor.dart';
+import 'package:storymaker/services/general_story_processor.dart';
 import 'package:storymaker/services/service_locator.dart';
 import 'package:storymaker/services/ui_data_provider.dart';
 import 'package:storymaker/services/video_processor.dart';

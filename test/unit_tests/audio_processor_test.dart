@@ -5,6 +5,7 @@ import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:storymaker/services/audio_processor.dart';
+import 'package:storymaker/utils/constants/custom_exceptions.dart';
 
 class FlutterFFmpegMock extends Mock implements FlutterFFmpeg {}
 
@@ -45,6 +46,46 @@ void main() {
 
         await audioProcessor.createFinalAudio(finalDuration);
         expect(audioProcessor.finalAudio.path, finalAudio.path);
+      });
+
+      test('ut_AudioProcessor_createFinalAudio_ExceededDurationException', () {
+        final exceededDuration = Duration(seconds: 16);
+
+        expect(
+            () async => await audioProcessor.createFinalAudio(exceededDuration),
+            throwsA(isInstanceOf<ExceededDurationException>()));
+      });
+    });
+
+    group('AudioProcessor mergeAudioFiles', () {
+      test('ut_AudioProcessor_mergeAudioFiles_default', () async {
+        when(flutterFFmpegMock.execute(any))
+            .thenAnswer((_) async => Future<int>.value(0));
+
+        final regex = RegExp(r'^test_resources\/mergedAudio.\.mp3$');
+
+        expect(
+            regex.hasMatch(
+                (await audioProcessor.mergeAudioFiles(audioFile, audioFile))
+                    .path),
+            true);
+      });
+
+      test('ut_AudioProcessor_mergeAudioFiles_InvalidFileException', () async {
+        expect(
+            () async =>
+                await audioProcessor.mergeAudioFiles(File(''), File('')),
+            throwsA(isInstanceOf<InvalidFileException>()));
+      });
+
+      test('ut_AudioProcessor_mergeAudioFiles_UnknownException', () async {
+        when(flutterFFmpegMock.execute(any))
+            .thenAnswer((_) async => Future<int>.value(-1));
+
+        expect(
+            () async =>
+                await audioProcessor.mergeAudioFiles(audioFile, audioFile),
+            throwsA(isInstanceOf<UnknownException>()));
       });
     });
   });

@@ -4,8 +4,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:storymaker/services/video_processing_data.dart';
+import 'package:storymaker/models/video_processing_data.dart';
 import 'package:storymaker/services/video_processor.dart';
+import 'package:storymaker/utils/constants/custom_exceptions.dart';
 import 'package:storymaker/utils/constants/general_processing_values.dart';
 
 class FlutterFFmpegMock extends Mock implements FlutterFFmpeg {}
@@ -51,6 +52,17 @@ void main() {
                 (await videoProcessor.joinVideos(firstVideo, secondVideo))
                     .path),
             true);
+      });
+
+      test('ut_VideoProcessor_joinVideos_invalid_videos', () async {
+        expect(await videoProcessor.joinVideos(File(''), File('')), null);
+      });
+
+      test('ut_VideoProcessor_joinVideos_error_rc', () async {
+        when(flutterFFmpegMock.execute(any))
+            .thenAnswer((_) async => Future<int>.value(-1));
+
+        expect(await videoProcessor.joinVideos(firstVideo, secondVideo), null);
       });
     });
 
@@ -108,13 +120,14 @@ void main() {
     group('VideoProcessor createFinalVideo', () {
       const double maxVolume = 12;
       const double meanVolume = 12;
-      when(flutterFFmpegMock.execute(any))
-          .thenAnswer((_) async => Future<int>.value(0));
-      when(flutterFFprobeMock.getMediaInformation(firstVideo.path)).thenAnswer(
-          (_) async => Future<Map>.value(
-              {'duration': firstVideoDuration.inMilliseconds}));
 
       test('ut_VideoProcessor_createFinalVideo_byAudio_default', () async {
+        when(flutterFFmpegMock.execute(any))
+            .thenAnswer((_) async => Future<int>.value(0));
+        when(flutterFFprobeMock.getMediaInformation(firstVideo.path))
+            .thenAnswer((_) async => Future<Map>.value(
+                {'duration': firstVideoDuration.inMilliseconds}));
+
         videoProcessor.maxVolume = maxVolume;
         videoProcessor.meanVolume = meanVolume;
         videoProcessor.videos = [firstVideo];
@@ -128,6 +141,12 @@ void main() {
       });
 
       test('ut_VideoProcessor_createFinalVideo_byScene_default', () async {
+        when(flutterFFmpegMock.execute(any))
+            .thenAnswer((_) async => Future<int>.value(0));
+        when(flutterFFprobeMock.getMediaInformation(firstVideo.path))
+            .thenAnswer((_) async => Future<Map>.value(
+                {'duration': firstVideoDuration.inMilliseconds}));
+
         videoProcessor.meanVolume = meanVolume;
         videoProcessor.videos = [firstVideo];
         videoProcessor.totalVideosDuration = firstVideoDuration;
@@ -144,6 +163,16 @@ void main() {
             finalDuration, ProcessingType.ByScene);
 
         expect(videoProcessor.finalVideo.path, isNot(equals(null)));
+      });
+
+      test('ut_VideoProcessor_createFinalVideo_ExceededDurationException',
+          () async {
+        final exceededDuration = Duration(seconds: 16);
+
+        expect(
+            () async => await videoProcessor.createFinalVideo(
+                exceededDuration, ProcessingType.ByScene),
+            throwsA(isInstanceOf<ExceededDurationException>()));
       });
     });
   });
