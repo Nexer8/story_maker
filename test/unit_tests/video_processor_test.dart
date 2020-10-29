@@ -73,8 +73,6 @@ void main() {
           'ut_VideoProcessor_loadVideosProcessingDataAndSetLongestAndTotalVideoDuration_default',
           () async {
         videoProcessor.videos = [firstVideo, secondVideo];
-        videoProcessor.totalVideosDuration =
-            firstVideoDuration + secondVideoDuration;
         videoProcessor.longestVideoDuration = firstVideoDuration;
 
         when(flutterFFprobeMock.getMediaInformation(firstVideo.path))
@@ -93,6 +91,49 @@ void main() {
           expect(
               result[i].originalDuration, videosToProcess[i].originalDuration);
         }
+      });
+
+      test(
+          'ut_VideoProcessor_loadVideosProcessingDataAndSetLongestAndTotalVideoDuration'
+          '_VideosShorterThanFinalDurationException', () async {
+        final finalDuration = Duration(minutes: 15);
+
+        videoProcessor.videos = [firstVideo, secondVideo];
+        videoProcessor.longestVideoDuration = firstVideoDuration;
+
+        when(flutterFFprobeMock.getMediaInformation(firstVideo.path))
+            .thenAnswer((_) async => Future<Map>.value(
+                {'duration': firstVideoDuration.inMilliseconds}));
+        when(flutterFFprobeMock.getMediaInformation(secondVideo.path))
+            .thenAnswer((_) async => Future<Map>.value(
+                {'duration': secondVideoDuration.inMilliseconds}));
+
+        expect(
+            () async => await videoProcessor
+                .loadVideosProcessingDataAndSetLongestAndTotalVideoDuration(
+                    finalDuration),
+            throwsA(isInstanceOf<VideosShorterThanFinalDurationException>()));
+      });
+
+      test(
+          'ut_VideoProcessor_loadVideosProcessingDataAndSetLongestAndTotalVideoDuration'
+          '_VideosShorterThanMinimalDurationException', () async {
+        final finalDuration = Duration(milliseconds: 1);
+        videoProcessor.videos = [firstVideo, secondVideo];
+        videoProcessor.longestVideoDuration = firstVideoDuration;
+
+        when(flutterFFprobeMock.getMediaInformation(firstVideo.path))
+            .thenAnswer((_) async => Future<Map>.value(
+                {'duration': Duration(milliseconds: 1).inMilliseconds}));
+        when(flutterFFprobeMock.getMediaInformation(secondVideo.path))
+            .thenAnswer((_) async => Future<Map>.value(
+                {'duration': Duration(milliseconds: 1).inMilliseconds}));
+
+        expect(
+            () async => await videoProcessor
+                .loadVideosProcessingDataAndSetLongestAndTotalVideoDuration(
+                    finalDuration),
+            throwsA(isInstanceOf<VideosShorterThanMinimalDurationException>()));
       });
     });
 

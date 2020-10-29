@@ -13,7 +13,7 @@ class NoAudioException implements Exception {
   String toString() => 'Video has no audio track!';
 }
 
-class VideosShortenThanFinalDurationException implements Exception {
+class VideosShorterThanFinalDurationException implements Exception {
   @override
   String toString() =>
       'Loaded videos combined are shorter than final duration!';

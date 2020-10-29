@@ -74,8 +74,10 @@ class VideoProcessor extends FileProcessor {
           video: video, originalDuration: currentVideoDuration));
     }
 
+    print(totalVideosDuration);
+
     if (totalVideosDuration < finalDuration) {
-      throw VideosShortenThanFinalDurationException();
+      throw VideosShorterThanFinalDurationException();
     }
     if (totalVideosDuration < minimalDuration) {
       throw VideosShorterThanMinimalDurationException();
