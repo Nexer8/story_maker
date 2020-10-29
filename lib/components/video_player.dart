@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:storymaker/components/neeko/lib/neeko.dart';
 import 'package:storymaker/components/save_video_icon_button.dart';
 import 'package:storymaker/components/share_video_icon_button.dart';
-import 'package:storymaker/services/general_processor.dart';
+import 'package:storymaker/services/general_story_processor.dart';
 import 'package:storymaker/utils/constants/colors.dart';
 
 class MyVideoPlayer extends StatelessWidget {

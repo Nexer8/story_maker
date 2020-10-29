@@ -4,7 +4,7 @@ import 'package:progress_dialog/progress_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:storymaker/components/error_handling_snackbar.dart';
 import 'package:storymaker/components/progress_dialog_window.dart';
-import 'package:storymaker/services/general_processor.dart';
+import 'package:storymaker/services/general_story_processor.dart';
 import 'package:storymaker/services/ui_data_provider.dart';
 import 'package:storymaker/utils/constants/colors.dart';
 

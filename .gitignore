@@ -30,6 +30,7 @@
 .pub/
 /build/
 /test_resources
+/coverage
 
 # Web related
 lib/generated_plugin_registrant.dart
