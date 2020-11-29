@@ -7,7 +7,6 @@ import 'package:storymaker/utils/constants/general_processing_values.dart';
 
 class AudioProcessor extends FileProcessor {
   File audio;
-  File finalAudio;
 
   AudioProcessor(
       {FlutterFFmpeg flutterFFmpeg,
@@ -45,15 +44,13 @@ class AudioProcessor extends FileProcessor {
     }
   }
 
-  Future<void> createFinalAudio(Duration finalDuration) async {
+  Future<File> createFinalAudio(Duration finalDuration) async {
     if (finalDuration > maximalDuration) {
       throw ExceededDurationException();
     }
 
-    Duration duration = await getDuration(audio);
-    File bestAudio = await getBestMomentByAudio(
-        audio, duration.inMicroseconds / finalDuration.inMicroseconds);
+    File bestAudio = await getBestMomentByAudio(audio, finalDuration);
 
-    finalAudio = bestAudio;
+    return bestAudio;
   }
 }

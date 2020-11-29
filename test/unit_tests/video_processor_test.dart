@@ -137,27 +137,6 @@ void main() {
       });
     });
 
-    group('VideoProcessor computeOneFractionValueAndSetNormalizedTimeFraction',
-        () {
-      test(
-          'ut_VideoProcessor_computeOneFractionValueAndSetNormalizedTimeFraction_default',
-          () {
-        const double normalizedTimeFraction = 1;
-        const double completeFactor = 2;
-        videoProcessor.longestVideoDuration = firstVideoDuration;
-        final oneFraction = Duration(milliseconds: 2500);
-
-        expect(
-            videoProcessor.computeOneFractionValueAndSetNormalizedTimeFraction(
-                videosToProcess, finalDuration),
-            oneFraction);
-        for (var videoData in videosToProcess) {
-          expect(videoData.normalizedTimeFraction, normalizedTimeFraction);
-        }
-        expect(videoProcessor.completeFactor, completeFactor);
-      });
-    });
-
     group('VideoProcessor createFinalVideo', () {
       const double maxVolume = 12;
       const double meanVolume = 12;
@@ -175,10 +154,10 @@ void main() {
         videoProcessor.totalVideosDuration = firstVideoDuration;
         videoProcessor.longestVideoDuration = firstVideoDuration;
 
-        await videoProcessor.createFinalVideo(
+        final createdFinalVideo = await videoProcessor.createFinalVideo(
             finalDuration, ProcessingType.ByAudio);
 
-        expect(videoProcessor.finalVideo.path, isNot(equals(null)));
+        expect(createdFinalVideo.path, isNot(equals(null)));
       });
 
       test('ut_VideoProcessor_createFinalVideo_byScene_default', () async {
@@ -200,10 +179,10 @@ void main() {
         final List<double> sceneScores = [0.9];
         videoProcessor.sceneScores = sceneScores;
 
-        await videoProcessor.createFinalVideo(
+        final createdFinalVideo = await videoProcessor.createFinalVideo(
             finalDuration, ProcessingType.ByScene);
 
-        expect(videoProcessor.finalVideo.path, isNot(equals(null)));
+        expect(createdFinalVideo.path, isNot(equals(null)));
       });
 
       test('ut_VideoProcessor_createFinalVideo_ExceededDurationException',

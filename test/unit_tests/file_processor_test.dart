@@ -254,7 +254,7 @@ void main() {
         when(flutterFFmpegMock.execute(any))
             .thenAnswer((_) async => Future<int>.value(0));
 
-        expect(await fileProcessor.getBestSceneScoresAndMoments(videoFile),
+        expect(await fileProcessor.getMeanSceneScoresAndMoments(videoFile),
             Tuple2(sceneScores, sceneMoments));
       });
 
@@ -262,7 +262,7 @@ void main() {
           () async {
         expect(
             () async =>
-                await fileProcessor.getBestSceneScoresAndMoments(File('')),
+                await fileProcessor.getMeanSceneScoresAndMoments(File('')),
             throwsException);
       });
 
@@ -273,14 +273,12 @@ void main() {
 
         expect(
             () async =>
-                await fileProcessor.getBestSceneScoresAndMoments(videoFile),
+                await fileProcessor.getMeanSceneScoresAndMoments(videoFile),
             throwsA(isInstanceOf<UnknownException>()));
       });
     });
 
     group('FileProcessor getBestMomentByAudio', () {
-      const double samplingRate = 12;
-
       test('ut_FileProcessor_getBestMomentByAudio_default', () async {
         const double maxVolume = 12;
         fileProcessor.maxVolume = maxVolume;
@@ -298,7 +296,7 @@ void main() {
 
         expect(
             regex.hasMatch((await fileProcessor.getBestMomentByAudio(
-                    videoFile, samplingRate))
+                    videoFile, videoDuration))
                 .path),
             true);
       });
@@ -306,14 +304,12 @@ void main() {
       test('ut_FileProcessor_getBestMomentByAudio_NoAudioException', () async {
         expect(
             () async =>
-                await fileProcessor.getBestMomentByAudio(null, samplingRate),
+                await fileProcessor.getBestMomentByAudio(null, videoDuration),
             throwsA(isInstanceOf<NoAudioException>()));
       });
     });
 
     group('FileProcessor getBestMomentByScene', () {
-      const double samplingRate = 12;
-
       test('ut_FileProcessor_getBestMomentByScene_default', () async {
         const double meanVolume = 12;
         fileProcessor.meanVolume = meanVolume;
@@ -335,7 +331,7 @@ void main() {
 
         expect(
             regex.hasMatch((await fileProcessor.getBestMomentByScene(
-                    videoFile, samplingRate))
+                    videoFile, videoDuration))
                 .path),
             true);
       });
@@ -344,7 +340,7 @@ void main() {
           () async {
         expect(
             () async =>
-                await fileProcessor.getBestMomentByScene(null, samplingRate),
+                await fileProcessor.getBestMomentByScene(null, videoDuration),
             throwsA(isInstanceOf<InvalidVideoFileException>()));
       });
     });

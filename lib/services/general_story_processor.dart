@@ -43,20 +43,6 @@ class GeneralStoryProcessor extends ChangeNotifier {
     _audioProcessor.audio = audio;
   }
 
-  bool isFinalVideoCreated() =>
-      _videoProcessor.finalVideo != null &&
-      _videoProcessor.finalVideo.existsSync();
-
-  bool isFinalAudioCreated() =>
-      _audioProcessor.finalAudio != null &&
-      _audioProcessor.finalAudio.existsSync();
-
-  bool areFinalAudioAndVideoCreated() =>
-      isFinalAudioCreated() && isFinalVideoCreated();
-
-  bool isVideoToBeWithoutJoiningAudio() =>
-      !isFinalAudioCreated() && isFinalVideoCreated();
-
   void cleanUp() {
     if (processedClip != null && processedClip.existsSync()) {
       processedClip.deleteSync();
@@ -71,17 +57,18 @@ class GeneralStoryProcessor extends ChangeNotifier {
 
     cleanUp();
 
-    await _videoProcessor.createFinalVideo(finalDuration, processingType);
+    File finalVideo =
+        await _videoProcessor.createFinalVideo(finalDuration, processingType);
+    File finalAudio;
 
     if (_audioProcessor.audio != null) {
-      await _audioProcessor.createFinalAudio(finalDuration);
+      finalAudio = await _audioProcessor.createFinalAudio(finalDuration);
     }
 
-    if (areFinalAudioAndVideoCreated()) {
-      processedClip = await joinAudioAndVideo(
-          _audioProcessor.finalAudio, _videoProcessor.finalVideo);
-    } else if (isVideoToBeWithoutJoiningAudio()) {
-      processedClip = _videoProcessor.finalVideo;
+    if (finalAudio != null && finalVideo != null) {
+      processedClip = await joinAudioAndVideo(finalAudio, finalVideo);
+    } else if (finalAudio == null && finalVideo != null) {
+      processedClip = finalVideo;
     } else {
       throw UnknownException();
     }

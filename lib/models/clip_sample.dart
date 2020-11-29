@@ -5,12 +5,12 @@ class ClipSample {
   final Duration startingPoint;
   final Duration endingPoint;
   double meanVolume;
-  double bestSceneScore;
+  double meanSceneScore;
 
   ClipSample(
       {this.file,
       this.startingPoint,
       this.endingPoint,
       this.meanVolume,
-      this.bestSceneScore});
+      this.meanSceneScore});
 }

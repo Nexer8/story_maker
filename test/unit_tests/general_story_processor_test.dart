@@ -35,9 +35,7 @@ void main() {
 
     tearDown(() {
       videoProcessorMock.videos = null;
-      videoProcessorMock.finalVideo = null;
       audioProcessorMock.audio = null;
-      audioProcessorMock.finalAudio = null;
       generalStoryProcessor.processedClip = null;
     });
 
@@ -104,9 +102,10 @@ void main() {
     group('GeneralStoryProcessor makeStory', () {
       test('ut_GeneralStoryProcessor_makeStory_video_only_default', () async {
         when(videoProcessorMock.videos).thenReturn([videoFile]);
-        when(videoProcessorMock.finalVideo).thenReturn(videoFile);
         when(audioProcessorMock.audio).thenReturn(null);
-        when(audioProcessorMock.finalAudio).thenReturn(null);
+
+        when(videoProcessorMock.createFinalVideo(finalDuration, processingType))
+            .thenAnswer((_) async => Future<File>.value(videoFile));
 
         await generalStoryProcessor.makeStory();
 
@@ -122,9 +121,13 @@ void main() {
         final mergedAudio = File('');
 
         when(videoProcessorMock.videos).thenReturn([videoFile]);
-        when(videoProcessorMock.finalVideo).thenReturn(videoFile);
         when(audioProcessorMock.audio).thenReturn(audioFile);
-        when(audioProcessorMock.finalAudio).thenReturn(audioFile);
+
+        when(videoProcessorMock.createFinalVideo(finalDuration, processingType))
+            .thenAnswer((_) async => Future<File>.value(videoFile));
+
+        when(audioProcessorMock.createFinalAudio(finalDuration))
+            .thenAnswer((_) async => Future<File>.value(audioFile));
 
         when(videoProcessorMock.extractAudioFromVideo(videoFile))
             .thenAnswer((_) async => Future<File>.value(extractedAudio));
@@ -157,9 +160,13 @@ void main() {
 
       test('ut_GeneralStoryProcessor_makeStory_UnknownException', () async {
         when(videoProcessorMock.videos).thenReturn([videoFile]);
-        when(videoProcessorMock.finalVideo).thenReturn(null);
         when(audioProcessorMock.audio).thenReturn(audioFile);
-        when(audioProcessorMock.finalAudio).thenReturn(null);
+
+        when(videoProcessorMock.createFinalVideo(finalDuration, processingType))
+            .thenAnswer((_) async => Future<File>.value(null));
+
+        when(audioProcessorMock.createFinalAudio(finalDuration))
+            .thenAnswer((_) async => Future<File>.value(null));
 
         expect(() async => await generalStoryProcessor.makeStory(),
             throwsA(isInstanceOf<UnknownException>()));

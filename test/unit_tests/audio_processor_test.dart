@@ -44,8 +44,9 @@ void main() {
         when(flutterFFmpegMock.execute(any))
             .thenAnswer((_) async => Future<int>.value(0));
 
-        await audioProcessor.createFinalAudio(finalDuration);
-        expect(audioProcessor.finalAudio.path, finalAudio.path);
+        final createdFinalAudio =
+            await audioProcessor.createFinalAudio(finalDuration);
+        expect(createdFinalAudio.path, finalAudio.path);
       });
 
       test('ut_AudioProcessor_createFinalAudio_ExceededDurationException', () {

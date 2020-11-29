@@ -8,10 +8,8 @@ import 'package:storymaker/utils/constants/general_processing_values.dart';
 
 class VideoProcessor extends FileProcessor {
   List<File> videos;
-  File finalVideo;
   Duration totalVideosDuration;
   Duration longestVideoDuration;
-  double completeFactor;
 
   VideoProcessor(
       {FlutterFFmpeg flutterFFmpeg,
@@ -84,26 +82,7 @@ class VideoProcessor extends FileProcessor {
     return videosToProcess;
   }
 
-  Duration computeOneFractionValueAndSetNormalizedTimeFraction(
-      List<VideoProcessingData> videosToProcess, Duration finalDuration) {
-    completeFactor = 0;
-
-    for (var videoData in videosToProcess) {
-      videoData.normalizedTimeFraction =
-          videoData.originalDuration.inMicroseconds.toDouble() /
-              longestVideoDuration.inMicroseconds.toDouble();
-
-      completeFactor += videoData.normalizedTimeFraction;
-    }
-
-    var oneFraction = Duration(
-        microseconds:
-            (finalDuration.inMicroseconds.toDouble() / completeFactor).floor());
-
-    return oneFraction;
-  }
-
-  Future<void> createFinalVideo(
+  Future<File> createFinalVideo(
       Duration finalDuration, ProcessingType processingType) async {
     if (finalDuration > maximalDuration) {
       throw ExceededDurationException();
@@ -113,23 +92,21 @@ class VideoProcessor extends FileProcessor {
         await loadVideosProcessingDataAndSetLongestAndTotalVideoDuration(
             finalDuration);
 
-    Duration oneFraction = computeOneFractionValueAndSetNormalizedTimeFraction(
-        videosProcessingData, finalDuration);
-
     var bestMomentsForVideos = List<File>();
     File videoToConcatenate;
 
     for (var videoData in videosProcessingData) {
-      videoData.expectedDuration =
-          oneFraction * videoData.normalizedTimeFraction;
-      videoData.samplingRate = videoData.originalDuration.inMicroseconds /
-          videoData.expectedDuration.inMicroseconds;
+      videoData.expectedDuration = Duration(
+          microseconds: ((videoData.originalDuration.inMicroseconds /
+                      totalVideosDuration.inMicroseconds) *
+                  finalDuration.inMicroseconds)
+              .floor());
 
       switch (processingType) {
         case ProcessingType.ByAudio:
           {
             bestMomentsForVideos.add(await getBestMomentByAudio(
-                videoData.video, videoData.samplingRate));
+                videoData.video, videoData.expectedDuration));
 
             videoToConcatenate = bestMomentsForVideos.first;
 
@@ -143,7 +120,7 @@ class VideoProcessor extends FileProcessor {
         case ProcessingType.ByScene:
           {
             bestMomentsForVideos.add(await getBestMomentByScene(
-                videoData.video, videoData.samplingRate));
+                videoData.video, videoData.expectedDuration));
 
             videoToConcatenate = bestMomentsForVideos.first;
 
@@ -158,6 +135,6 @@ class VideoProcessor extends FileProcessor {
 
     sceneScores.clear();
     sceneMoments.clear();
-    finalVideo = videoToConcatenate;
+    return videoToConcatenate;
   }
 }

@@ -191,7 +191,7 @@ class FileProcessor {
     }
   }
 
-  Future<Tuple2<List<double>, List<Duration>>> getBestSceneScoresAndMoments(
+  Future<Tuple2<List<double>, List<Duration>>> getMeanSceneScoresAndMoments(
       File video) async {
     if (!video.existsSync()) {
       throw InvalidVideoFileException();
@@ -214,7 +214,7 @@ class FileProcessor {
     }
   }
 
-  Future<File> getBestMomentByAudio(File video, double samplingRate) async {
+  Future<File> getBestMomentByAudio(File video, Duration step) async {
     if (video == null || await isSilent(video)) {
       throw NoAudioException();
     }
@@ -223,9 +223,6 @@ class FileProcessor {
 
     Duration duration = await getDuration(video);
     var currentPoint = Duration();
-
-    Duration step = Duration(
-        microseconds: (duration.inMicroseconds / samplingRate).floor());
 
     while (currentPoint < duration) {
       Duration startingPoint =
@@ -250,17 +247,15 @@ class FileProcessor {
     return bestMoment;
   }
 
-  Future<File> getBestMomentByScene(File video, double samplingRate) async {
+  Future<File> getBestMomentByScene(File video, Duration step) async {
     if (video == null) {
       throw InvalidVideoFileException();
     }
 
     Duration duration = await getDuration(video);
-    Duration step = Duration(
-        microseconds: (duration.inMicroseconds / samplingRate).floor());
 
     Tuple2<List<double>, List<Duration>> bestSceneScoresAndMoments =
-        await getBestSceneScoresAndMoments(video);
+        await getMeanSceneScoresAndMoments(video);
 
     if (bestSceneScoresAndMoments == null) {
       return null;
@@ -270,13 +265,13 @@ class FileProcessor {
     var currentPoint = Duration();
     int i = 0;
 
-    while (currentPoint + step < duration &&
+    while (currentPoint + step <= duration &&
         i < bestSceneScoresAndMoments.item1.length) {
       double sceneValuesSum = 0;
       int counter = 0;
       Duration endingPoint = currentPoint;
 
-      while (endingPoint < currentPoint + step &&
+      while (endingPoint <= currentPoint + step &&
           i < bestSceneScoresAndMoments.item1.length - 1) {
         sceneValuesSum += bestSceneScoresAndMoments.item1.elementAt(i);
         counter++;
@@ -288,14 +283,14 @@ class FileProcessor {
       bestMoments.add(ClipSample(
           startingPoint: currentPoint,
           endingPoint: currentPoint + step,
-          bestSceneScore: (sceneValuesSum / counter.toDouble())));
+          meanSceneScore: (sceneValuesSum / counter.toDouble())));
 
       currentPoint = ((currentPoint + step) <= duration)
           ? currentPoint + step
           : duration - step;
     }
 
-    bestMoments.sort((b, a) => a.bestSceneScore.compareTo(b.bestSceneScore));
+    bestMoments.sort((b, a) => a.meanSceneScore.compareTo(b.meanSceneScore));
 
     File bestMoment = await trim(
         video, bestMoments.first.startingPoint, bestMoments.first.endingPoint);
